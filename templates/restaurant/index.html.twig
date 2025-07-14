@@ -1,0 +1,26 @@
+<h1>{{ restaurant.name }}</h1>
+
+<div class="menu-categories">
+    {% for category in restaurant.categories %}
+        <div class="category-card">
+            <h2>{{ category.name }}</h2>
+
+            {% if category.items is empty %}
+                <p>Aucun élément pour l’instant.</p>
+            {% else %}
+                <ul>
+                    {% for item in category.items %}
+                        <li>
+                            <strong>{{ item.name }}</strong> - {{ item.price }} €
+                            {% if item.description %}
+                                <br><small>{{ item.description }}</small>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <a href="{{ path('menu_item_new', {'category_id': category.id}) }}">➕ Ajouter un élément</a>
+        </div>
+    {% endfor %}
+</div>

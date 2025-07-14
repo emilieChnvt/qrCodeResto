@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard de {{ restaurant.name }}{% endblock %}
+
+{% block body %}
+    <div class="max-w-7xl mx-auto px-6 py-10">
+        <h1 class="text-3xl font-bold mb-8 text-gray-800">Dashboard de {{ restaurant.name }}</h1>
+        <a href="{{ path('app_admin', {id:app.user.id}) }}">retour</a>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for category in categories %}
+                <div class="bg-white shadow-md rounded-2xl p-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-700">{{ category.name }}</h2>
+
+                    </div>
+
+                    {% if category is empty %}
+                        <p class="text-gray-500 italic">Aucun plat pour cette catégorie.</p>
+                    {% else %}
+                        <ul class="space-y-2">
+                            {% for item in category.menuItems %}
+                                <li class="border border-gray-200 p-3 rounded-md bg-gray-50">
+                                    <div class="flex justify-between">
+                                        <span class="font-medium text-gray-800">{{ item.name }}</span>
+                                        <span class="text-gray-600">{{ item.price|number_format(2, '.', ' ') }} €</span>
+                                    </div>
+                                    {% if item.description %}
+                                        <p class="text-sm text-gray-500 mt-1">{{ item.description }}</p>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <a href="{{ path('app_menu_item_create',{id:category.id}) }}">add menuitem</a>
+
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

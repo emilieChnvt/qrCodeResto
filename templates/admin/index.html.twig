@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard - Mes Restaurants{% endblock %}
+
+{% block body %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">👋 Bienvenue, {{ app.user.firstname|default('Admin') }}</h1>
+
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-gray-800">📋 Mes Restaurants</h2>
+            <a href="{{ path('app_create_restaurant') }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition">
+                + Ajouter un restaurant
+            </a>
+        </div>
+
+        {% set userRestaurants = restaurants|filter(r => r.ofUser.id == app.user.id) %}
+
+        {% if userRestaurants is empty %}
+            <div class="bg-blue-100 text-blue-800 p-4 rounded">
+                Vous n'avez encore aucun restaurant. Cliquez sur le bouton "Ajouter un restaurant" pour commencer.
+            </div>
+        {% else %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for restaurant in userRestaurants %}
+                    <div class="bg-white shadow-md rounded-lg p-5 hover:shadow-xl transition">
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">{{ restaurant.name }}</h3>
+                        <p class="text-sm text-gray-500">Créé le {{ restaurant.createAt|date('d/m/Y') }}</p>
+
+                        <div class="mt-4 flex justify-between">
+                            <a href="{{ path('restaurant',{id:restaurant.id}) }}" class="text-blue-600 hover:underline text-sm">Voir</a>
+                            <a href="#" class="text-yellow-600 hover:underline text-sm">Modifier</a>
+                            <a href="#" class="text-red-600 hover:underline text-sm">Supprimer</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
