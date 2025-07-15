@@ -37,7 +37,7 @@ final class MenuItemController extends AbstractController
             $menuItem->setCategory($category);
             $entityManager->persist($menuItem);
             $entityManager->flush();
-            return $this->redirectToRoute('restaurant',['id' => $category->getRestaurant()->getId()]);
+            return $this->redirectToRoute('restaurant',['id' => $menuItem->getCategory()->getRestaurant()->getId()]);
         }
         return $this->render('menu_item/create.html.twig', [
             'form' => $form->createView(),
@@ -46,4 +46,17 @@ final class MenuItemController extends AbstractController
 
 
     }
+
+    #[Route('/menu/item/delete/{id}', name: 'app_delete_menu_item')]
+    public function delete(MenuItem $menuItem, EntityManagerInterface $entityManager, MenuCategory $category): Response
+    {
+        if($this->getUser()->getId() !== $category->getRestaurant()->getOfUser()->getId()){
+            return $this->redirectToRoute('restaurant',['id' => $category->getRestaurant()->getId()]);
+        }
+
+        $entityManager->remove($menuItem);
+        $entityManager->flush();
+        return $this->redirectToRoute('restaurant',['id' => $menuItem->getCategory()->getRestaurant()->getId()]);
+    }
+
 }

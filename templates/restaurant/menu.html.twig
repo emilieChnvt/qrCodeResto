@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Menu de {{ restaurant.name }}{% endblock %}
+
+{% block body %}
+    <div class="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg mt-10 font-serif text-gray-900">
+
+        <header class="mb-12 text-center">
+            <h1 class="text-5xl font-bold mb-2">{{ restaurant.name }}</h1>
+
+            <hr class="mt-8 border-gray-300" />
+        </header>
+
+        {% for category in categories %}
+            {% if category.menuItems|length > 0 %}
+                <section class="mb-10">
+                    <h2 class="text-3xl font-semibold border-b-2 border-gray-300 pb-2 mb-6">{{ category.name }}</h2>
+
+                    <ul>
+                        {% for item in category.menuItems %}
+                            <li class="mb-6">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="text-xl font-medium">{{ item.name }}</h3>
+                                    <span class="text-lg font-semibold text-green-700">{{ item.price|number_format(2, '.', ',') }} €</span>
+                                </div>
+                                {% if item.description %}
+                                    <p class="mt-1 text-gray-700 italic max-w-prose">{{ item.description }}</p>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endif %}
+        {% endfor %}
+
+
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <p>Merci de votre visite chez <strong>{{ restaurant.name }}</strong>!</p>
+        </footer>
+
+    </div>
+{% endblock %}

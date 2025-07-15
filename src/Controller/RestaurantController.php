@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\MenuCategory;
 use App\Entity\Restaurant;
+use App\Entity\User;
 use App\Form\RestaurantType;
 use App\Repository\MenuCategoryRepository;
 use App\Repository\RestaurantRepository;
@@ -30,10 +31,10 @@ final class RestaurantController extends AbstractController
         ]);
     }
 
-    #[Route('/create', name: 'app_create_restaurant')]
-    public function create(EntityManagerInterface $entityManager, Request $request, MenuCategoryRepository $categoryRepository): Response
+    #[Route('/create/{id}', name: 'app_create_restaurant')]
+    public function create(EntityManagerInterface $entityManager, Request $request, MenuCategoryRepository $categoryRepository, User $user): Response
     {
-        if(!$this->getUser() || $this->getUser()->getId() !== $restaurant->getOfUser()->getId()){
+        if(!$this->getUser()){
             return $this->redirectToRoute('app_login');
         }
         $restaurant = new Restaurant();
@@ -45,7 +46,7 @@ final class RestaurantController extends AbstractController
             $entityManager->persist($restaurant);
             $entityManager->flush();
 
-            $categoryNames = ['Entrées', 'Plats', 'Desserts', 'Boissons', 'Cocktails', 'Digestifs', 'Boissons chaudes', 'Menus'];
+            $categoryNames = ['Boissons', 'Boissons chaudes', 'Cocktails','Entrées', 'Plats',   'Menus', 'Desserts', 'Digestifs'];
 
             foreach ($categoryNames as $name) {
                 $category = new MenuCategory();
@@ -57,11 +58,10 @@ final class RestaurantController extends AbstractController
 
             return $this->redirectToRoute('app_admin',['id' => $this->getUser()->getId()]);
         }
-        $categories = $categoryRepository->findByRestaurant($restaurant);
 
         return $this->render('restaurant/create.html.twig', [
             'form' => $form->createView(),
-            'categories' => $categories,
+            'categories' => $categoryRepository->findAll(),
         ]);
     }
 
@@ -94,4 +94,18 @@ final class RestaurantController extends AbstractController
             'restaurant' => $restaurant,
         ]);
     }
+
+    #[Route('/showMenu/{id}', name: 'app_show_menu')]
+    public function showMenu(Restaurant $restaurant, MenuCategoryRepository $menuCategoryRepository): Response
+    {
+        if(!$this->getUser() || $this->getUser()->getId() !== $restaurant->getOfUser()->getId()){
+            return $this->redirectToRoute('app_login');
+        }
+        $categories = $menuCategoryRepository->findByRestaurant($restaurant);
+        return $this->render('restaurant/menu.html.twig', [
+            'restaurant' => $restaurant,
+            'categories' => $categories,
+        ]);
+    }
+
 }

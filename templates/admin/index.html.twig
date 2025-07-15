@@ -8,7 +8,7 @@
 
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-semibold text-gray-800">📋 Mes Restaurants</h2>
-            <a href="{{ path('app_create_restaurant') }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition">
+            <a href="{{ path('app_create_restaurant',{id:app.user.id}) }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition">
                 + Ajouter un restaurant
             </a>
         </div>
