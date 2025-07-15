@@ -6,6 +6,10 @@ use App\Repository\RestaurantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+
+#[Vich\Uploadable]
 
 #[ORM\Entity(repositoryClass: RestaurantRepository::class)]
 class Restaurant
@@ -32,6 +36,12 @@ class Restaurant
      */
     #[ORM\OneToMany(targetEntity: MenuCategory::class, mappedBy: 'restaurant', orphanRemoval: true)]
     private Collection $menuCategories;
+
+
+    #[Vich\UploadableField(mapping: 'menu_files', fileNameProperty: 'menuFilename')]
+    private ?File $menuFile = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $menuFileName = null;
 
     public function __construct()
     {
@@ -120,4 +130,32 @@ class Restaurant
 
         return $this;
     }
+
+    public function getMenuFileName(): ?string
+    {
+        return $this->menuFileName;
+    }
+
+    public function setMenuFileName(?string $menuFileName): static
+    {
+        $this->menuFileName = $menuFileName;
+
+        return $this;
+    }
+    public function setMenuFile(?File $menuFile = null): void
+    {
+        $this->menuFile = $menuFile;
+
+        if (null !== $menuFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->createAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getMenuFile(): ?File
+    {
+        return $this->menuFile;
+    }
+
 }

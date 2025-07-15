@@ -11,6 +11,9 @@
         "doctrine/doctrine-bundle": "^2.15",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.5",
+        "endroid/qr-code-bundle": "^6.0",
+        "gedmo/doctrine-extensions": "^3.20",
+        "knplabs/knp-snappy-bundle": "^1.10",
         "mailgun/mailgun-php": "^4.3",
         "nyholm/psr7": "^1.8",
         "phpdocumentor/reflection-docblock": "^5.6",
@@ -48,10 +51,12 @@
         "symfonycasts/tailwind-bundle": "^0.10.0",
         "symfonycasts/verify-email-bundle": "^1.17",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "vich/uploader-bundle": "^2.7"
     },
     "config": {
         "allow-plugins": {
+            "endroid/installer": true,
             "php-http/discovery": true,
             "symfony/flex": true,
             "symfony/runtime": true

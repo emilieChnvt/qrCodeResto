@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Upload menu - {{ restaurant.name }}{% endblock %}
+
+{% block body %}
+    <div class="max-w-xl mx-auto mt-10">
+        <h1 class="text-2xl font-bold mb-6">📤 Uploader un menu pour {{ restaurant.name }}</h1>
+
+        {{ form_start(form) }}
+        {{ form_row(form.menuFile) }}
+        <button class="mt-4 bg-green-600 text-white px-4 py-2 rounded" type="submit">Enregistrer</button>
+        {{ form_end(form) }}
+
+
+        {% if restaurant.menuFilename %}
+            <div class="mt-4">
+                <a href="{{ vich_uploader_asset(restaurant, 'menuFile') }}" class="text-blue-600 underline" target="_blank">
+                    📄 Voir le fichier actuel
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
