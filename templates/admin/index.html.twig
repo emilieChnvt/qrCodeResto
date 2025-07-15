@@ -28,8 +28,8 @@
 
                         <div class="mt-4 flex justify-between">
                             <a href="{{ path('restaurant',{id:restaurant.id}) }}" class="text-blue-600 hover:underline text-sm">Voir</a>
-                            <a href="#" class="text-yellow-600 hover:underline text-sm">Modifier</a>
-                            <a href="#" class="text-red-600 hover:underline text-sm">Supprimer</a>
+                            <a href="{{ path('app_update_restaurant',{id:restaurant.id}) }}" class="text-yellow-600 hover:underline text-sm">Modifier</a>
+                            <a href="{{ path('app_delete_restaurant',{id:restaurant.id}) }}" class="text-red-600 hover:underline text-sm">Supprimer</a>
                         </div>
                     </div>
                 {% endfor %}

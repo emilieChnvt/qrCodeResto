@@ -18,6 +18,11 @@ when@dev:
             #chromephp:
             #    type: chromephp
             #    level: info
+            mailer:
+                type: stream
+                path: '%kernel.logs_dir%/mailer.log'
+                level: debug
+                channels: [ 'mailer' ]
             console:
                 type: console
                 process_psr_3_messages: false

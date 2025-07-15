@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ restaurant.name }}{% endblock %}
+
+{% block body %}
+    <div class="max-w-2xl mx-auto px-6 py-10">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Modifier le restaurant : {{ restaurant.name }}</h1>
+
+        {{ form_start(form) }}
+
+        <div class="space-y-4">
+            {{ form_row(form.name, {'attr': {'class': 'w-full px-4 py-2 border rounded-md'}}) }}
+            {{ form_row(form.slug, {'attr': {'class': 'w-full px-4 py-2 border rounded-md'}}) }}
+        </div>
+
+        <div class="mt-6">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg">
+                Enregistrer
+            </button>
+            <a href="{{ path('app_admin', {id: app.user.id}) }}" class="ml-4 text-gray-600 hover:underline">Annuler</a>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

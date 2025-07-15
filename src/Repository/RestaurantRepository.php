@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\MenuItem;
 use App\Entity\Restaurant;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -15,6 +16,7 @@ class RestaurantRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Restaurant::class);
     }
+
 
     //    /**
     //     * @return Restaurant[] Returns an array of Restaurant objects
