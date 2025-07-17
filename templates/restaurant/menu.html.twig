@@ -3,28 +3,28 @@
 {% block title %}Menu de {{ restaurant.name }}{% endblock %}
 
 {% block body %}
-    <div class="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg mt-10 font-serif text-gray-900">
+    <div class="max-w-4xl mx-auto p-10 bg-amber-50 shadow-lg rounded-xl mt-12 font-serif text-gray-900">
 
         <header class="mb-12 text-center">
-            <h1 class="text-5xl font-bold mb-2">{{ restaurant.name }}</h1>
+            <h1 class="text-5xl font-bold mb-3 text-amber-700 tracking-wide">{{ restaurant.name }}</h1>
 
-            <hr class="mt-8 border-gray-300" />
+            <hr class="mt-6 border-amber-300 w-24 mx-auto rounded" />
         </header>
 
         {% for category in categories %}
             {% if category.menuItems|length > 0 %}
-                <section class="mb-10">
-                    <h2 class="text-3xl font-semibold border-b-2 border-gray-300 pb-2 mb-6">{{ category.name }}</h2>
+                <section class="mb-14">
+                    <h2 class="text-3xl font-semibold border-b-4 border-amber-400 pb-3 mb-8 text-amber-800 tracking-wide">{{ category.name }}</h2>
 
                     <ul>
                         {% for item in category.menuItems %}
-                            <li class="mb-6">
-                                <div class="flex justify-between items-center">
-                                    <h3 class="text-xl font-medium">{{ item.name }}</h3>
-                                    <span class="text-lg font-semibold text-green-700">{{ item.price|number_format(2, '.', ',') }} €</span>
+                            <li class="mb-8 last:mb-0">
+                                <div class="flex justify-between items-center border-b border-amber-200 pb-3">
+                                    <h3 class="text-2xl font-medium text-amber-900">{{ item.name }}</h3>
+                                    <span class="text-xl font-semibold text-amber-700">{{ item.price|number_format(2, '.', ',') }} €</span>
                                 </div>
                                 {% if item.description %}
-                                    <p class="mt-1 text-gray-700 italic max-w-prose">{{ item.description }}</p>
+                                    <p class="mt-2 text-amber-700 italic max-w-prose leading-relaxed">{{ item.description }}</p>
                                 {% endif %}
                             </li>
                         {% endfor %}
@@ -33,9 +33,8 @@
             {% endif %}
         {% endfor %}
 
-
-        <footer class="mt-16 text-center text-gray-500 text-sm">
-            <p>Merci de votre visite chez <strong>{{ restaurant.name }}</strong>!</p>
+        <footer class="mt-20 text-center text-amber-600 text-sm italic">
+            <p>Merci de votre visite chez <strong class="font-semibold">{{ restaurant.name }}</strong> !</p>
         </footer>
 
     </div>

@@ -13,7 +13,15 @@
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>
-    <body>
+    <body class="h-screen flex">
+
+    <!-- Sidebar -->
+    {% include 'nav/nav.html.twig' %}
+
+    <!-- Main content -->
+    <main class="flex-1 bg-gray-100 p-8 overflow-auto">
         {% block body %}{% endblock %}
+    </main>
+
     </body>
 </html>

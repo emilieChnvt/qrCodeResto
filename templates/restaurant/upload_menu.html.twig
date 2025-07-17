@@ -3,21 +3,46 @@
 {% block title %}Upload menu - {{ restaurant.name }}{% endblock %}
 
 {% block body %}
-    <div class="max-w-xl mx-auto mt-10">
-        <h1 class="text-2xl font-bold mb-6">📤 Uploader un menu pour {{ restaurant.name }}</h1>
+    <div class="min-h-screen bg-amber-50 flex flex-col">
 
-        {{ form_start(form) }}
-        {{ form_row(form.menuFile) }}
-        <button class="mt-4 bg-green-600 text-white px-4 py-2 rounded" type="submit">Enregistrer</button>
-        {{ form_end(form) }}
+        <!-- Navbar simple similaire -->
+        <nav class="bg-white shadow-sm px-8 py-4 flex justify-between items-center sticky top-0 z-20 border-b border-amber-200">
+            <h1 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+                📤 Uploader un menu - {{ restaurant.name }}
+            </h1>
+            <a href="{{ path('restaurant', {id: restaurant.id}) }}"
+               class="text-gray-700 hover:text-gray-900 font-medium transition flex items-center gap-1">
+                ← Retour
+            </a>
+        </nav>
 
+        <!-- Main content -->
+        <main class="flex-grow max-w-xl mx-auto px-6 py-10 w-full">
+            <div class="bg-white p-8 rounded-lg shadow-sm border border-amber-200">
+                {{ form_start(form) }}
 
-        {% if restaurant.menuFilename %}
-            <div class="mt-4">
-                <a href="{{ vich_uploader_asset(restaurant, 'menuFile') }}" class="text-blue-600 underline" target="_blank">
-                    📄 Voir le fichier actuel
-                </a>
+                <div class="mb-6">
+                    {{ form_row(form.menuFile, {'attr': {'class': 'border border-amber-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-amber-500'}}) }}
+                </div>
+
+                <button type="submit"
+                        class="bg-amber-600 hover:bg-amber-700 text-white py-2 px-6 rounded-md shadow-sm transition">
+                    Enregistrer
+                </button>
+
+                {{ form_end(form) }}
+
+                {% if restaurant.menuFilename %}
+                    <div class="mt-6 text-center">
+                        <a href="{{ vich_uploader_asset(restaurant, 'menuFile') }}"
+                           class="text-amber-600 hover:text-amber-800 underline font-semibold transition"
+                           target="_blank">
+                            📄 Voir le fichier actuel
+                        </a>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+        </main>
+
     </div>
 {% endblock %}
