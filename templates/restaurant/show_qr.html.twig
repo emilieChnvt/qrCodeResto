@@ -1,13 +1,36 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}QR Code du menu{% endblock %}
+
 {% block body %}
-    <h1>QR Code du menu</h1>
-    <img src="{{ qrCode }}" alt="QR Code du menu">
+    <div class="max-w-xl mx-auto py-10 text-center">
 
+        <input type="range" id="sizeRange" min="100" max="500" value="250" />
 
-{% endblock %}
+        <a id="pdfLink" href="{{ path('app_restaurant_pdf', {id: restaurant.id, size: 250}) }}">Télécharger le PDF</a>
 
-{% block title %}
+        <div id="qrContainer" style="width: 250px; height: 250px;">
+            <img src="{{ qrCode }}" alt="QR Code" />
+        </div>
 
-{% endblock %}
+        <script>
+            const rangeInput = document.getElementById('sizeRange');
+            const qrContainer = document.getElementById('qrContainer');
+            const pdfLink = document.getElementById('pdfLink');
 
+            // On récupère l'URL de base avec un placeholder (ici size = 0)
+            const pdfBaseUrl = "{{ path('app_restaurant_pdf', {'id': restaurant.id, 'size': 0}) }}";
+
+            rangeInput.addEventListener('input', () => {
+                const size = rangeInput.value;
+
+                // Redimensionner visuellement le QR code sur la page
+                qrContainer.style.width = size + 'px';
+                qrContainer.style.height = size + 'px';
+
+                // Mettre à jour dynamiquement le lien PDF en remplaçant 0 par la taille choisie
+                pdfLink.href = pdfBaseUrl.replace('0', size);
+            });
+        </script>
+
+        {% endblock %}
