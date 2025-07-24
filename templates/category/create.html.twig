@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une Catégorie{% endblock %}
+
+{% block body %}
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">➕ Nouvelle Catégorie</h1>
+
+        {{ form_start(form) }}
+
+        <div class="mb-4">
+            {{ form_label(form.name, 'Nom de la catégorie', {'label_attr': {'class': 'block text-gray-700 font-medium mb-1'}}) }}
+            {{ form_widget(form.name, {'attr': {'class': 'w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500'}}) }}
+            {{ form_errors(form.name) }}
+        </div>
+
+        <div class="mt-6">
+            <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition">
+                💾 Enregistrer
+            </button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

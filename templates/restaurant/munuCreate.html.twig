@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un Menu{% endblock %}
+
+{% block body %}
+    <div class="min-h-screen bg-amber-50 py-12 px-6 flex items-center justify-center">
+        <div class="w-full max-w-3xl bg-white p-10 rounded-xl shadow-lg border border-amber-300">
+            <h1 class="text-3xl font-semibold text-amber-900 mb-8">Créer un nouveau menu pour <span class="font-bold">{{ restaurant.name }}</span></h1>
+
+            {{ form_start(form, {
+                'method': 'POST',
+                'action': path('menu_create_restaurant', {'id': restaurant.id}),
+                'attr': {'class': 'space-y-8'}
+            }) }}
+
+            <div>
+                {{ form_label(form.name, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-800 mb-2'}}) }}
+                {{ form_widget(form.name, {'attr': {
+                    'class': 'w-full px-4 py-3 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition'
+                }}) }}
+                <div class="text-red-600 text-sm mt-1">
+                    {{ form_errors(form.name) }}
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-sm font-semibold text-gray-800 mb-3">Choisir les catégories à inclure</h2>
+                <div class="space-y-3 border border-amber-200 rounded-md p-4 bg-amber-50 max-h-64 overflow-y-auto">
+                    {{ form_widget(form.categories, {'attr': {'class': 'space-y-2'}}) }}
+                </div>
+                <div class="text-red-600 text-sm mt-1">
+                    {{ form_errors(form.categories) }}
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 rounded-md shadow-md transition-shadow">
+                ➕ Créer le menu
+            </button>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

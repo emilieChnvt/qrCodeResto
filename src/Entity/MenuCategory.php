@@ -28,9 +28,16 @@ class MenuCategory
     #[ORM\OneToMany(targetEntity: MenuItem::class, mappedBy: 'category', orphanRemoval: true)]
     private Collection $menuItems;
 
+    /**
+     * @var Collection<int, Menu>
+     */
+    #[ORM\ManyToMany(targetEntity: Menu::class, mappedBy: 'categories')]
+    private Collection $menus;
+
     public function __construct()
     {
         $this->menuItems = new ArrayCollection();
+        $this->menus = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -87,6 +94,33 @@ class MenuCategory
             if ($menuItem->getCategory() === $this) {
                 $menuItem->setCategory(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Menu>
+     */
+    public function getMenus(): Collection
+    {
+        return $this->menus;
+    }
+
+    public function addMenu(Menu $menu): static
+    {
+        if (!$this->menus->contains($menu)) {
+            $this->menus->add($menu);
+        }
+
+        return $this;
+    }
+
+
+    public function removeMenu(Menu $menu): static
+    {
+        if ($this->menus->removeElement($menu)) {
+            $menu->removeCategory($this);
         }
 
         return $this;

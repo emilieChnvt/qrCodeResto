@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Form;
+
+use App\Entity\Menu;
+use App\Entity\MenuCategory;
+use App\Entity\Restaurant;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
+class MenuType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('name')
+
+            ->add('categories', EntityType::class, [
+                'class' => MenuCategory::class,
+                'choices' => $options['categories'],
+                'multiple' => true,
+                'expanded' => true,
+                'choice_label' => 'name',
+                'by_reference' => false, // <- IMPORTANT pour appeler add/removeCategory
+
+            ])
+        ;
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => Menu::class,
+            'categories' => [], // <- ici, une nouvelle option personnalisée
+        ]);
+
+    }
+}

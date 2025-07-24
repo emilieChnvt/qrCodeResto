@@ -2,12 +2,19 @@
 
 namespace App\Controller;
 
+use App\Entity\Menu;
 use App\Entity\MenuCategory;
+use App\Entity\MenuItem;
 use App\Entity\Restaurant;
 use App\Entity\User;
+use App\Form\AddItemToMenuType;
+use App\Form\MenuItemType;
+use App\Form\MenuType;
 use App\Form\RestarantMenuUploadType;
 use App\Form\RestaurantType;
 use App\Repository\MenuCategoryRepository;
+use App\Repository\MenuItemRepository;
+use App\Repository\MenuRepository;
 use App\Repository\RestaurantRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Endroid\QrCode\Builder\BuilderInterface;
@@ -25,17 +32,20 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 final class RestaurantController extends AbstractController
 {
     #[Route('/{id}', name: 'restaurant')]
-    public function show(Restaurant $restaurant, RestaurantRepository $restaurantRepository, MenuCategoryRepository $categoryRepository): Response
+    public function show(Restaurant $restaurant, MenuRepository $menuRepository, RestaurantRepository $restaurantRepository, MenuCategoryRepository $categoryRepository): Response
     {
         if (!$this->getUser() || $this->getUser()->getId() !== $restaurant->getOfUser()->getId()) {
             return $this->redirectToRoute('app_login');
         }
         $categories = $categoryRepository->findByRestaurant($restaurant);
+        $menus = $menuRepository->findBy(['restaurant' => $restaurant]);
+
 
         return $this->render('restaurant/show.html.twig', [
             'restaurant' => $restaurant,
             'categories' => $categories,
-            'restaurants' => $restaurantRepository->findAll()
+            'restaurants' => $restaurantRepository->findAll(),
+            'menus' => $menus,
         ]);
     }
 
@@ -138,7 +148,92 @@ final class RestaurantController extends AbstractController
         ]);
     }
 
+    #[Route('/menu/create/{id}', name: 'menu_create_restaurant')]
+    public function createMenu(Restaurant $restaurant,EntityManagerInterface $entityManager, Request $request, MenuCategoryRepository $menuCategoryRepository): Response
+    {
+        if (!$this->getUser() || $this->getUser()->getId() !== $restaurant->getOfUser()->getId()) {
+            return $this->redirectToRoute('app_login');
+        }
 
+        $categories = $menuCategoryRepository->findByRestaurant($restaurant);
+
+        $menu = new Menu();
+        $form = $this->createForm(MenuType::class, $menu, [
+            'categories' => $categories,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $menu->setRestaurant($restaurant);
+
+            $entityManager->persist($menu);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('add_menu_item', ['id' => $menu->getId()]);
+        }
+
+
+
+        return $this->render('restaurant/munuCreate.html.twig', [
+            'form' => $form->createView(),
+            'restaurant' => $restaurant,
+            'categories' => $categories,
+        ]);
+
+    }
+
+    #[Route('/menu/addItem/{id}', name: 'add_menu_item')]
+    public function addItemToMenu(MenuItemRepository $menuItemRepository, Menu $menu, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        if (!$this->getUser() || $this->getUser()->getId() !== $menu->getRestaurant()->getOfUser()->getId()) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $restaurant = $menu->getRestaurant();
+
+        $menuItems = $entityManager->getRepository(MenuItem::class)->createQueryBuilder('mi')
+            ->join('mi.category', 'c')
+            ->where('c.restaurant = :restaurant')
+            ->andWhere(':menu NOT MEMBER OF mi.menus')
+            ->setParameter('restaurant', $restaurant)
+            ->setParameter('menu', $menu)
+            ->getQuery()
+            ->getResult();
+
+        $choices = [];
+        foreach ($menuItems as $item) {
+            $choices[$item->getName()] = $item->getId();
+        }
+        $categories = $menu->getCategories();
+        $form = $this->createForm(AddItemToMenuType::class, null, ['choices' => $choices]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $selectedItemIds = $form->get('menuItems')->getData();
+
+            foreach ($selectedItemIds as $itemId) {
+                $item = $entityManager->getRepository(MenuItem::class)->find($itemId);
+                if ($item) {
+                    $menu->addMenuItem($item);
+                }
+            }
+
+            $entityManager->persist($menu);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('restaurant', ['id' => $menu->getRestaurant()->getId()]);
+        }
+
+
+        return $this->render('restaurant/addItemToMenu.html.twig', [
+            'form' => $form,
+'menu' => $menu,
+            'categories' => $categories,
+            ]);
+
+
+    }
     #[Route('/qr-code/{id}/{type}', name: 'app_qr_code')]
     public function qrCode(
         Restaurant       $restaurant,
