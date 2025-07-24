@@ -186,34 +186,29 @@ final class RestaurantController extends AbstractController
     #[Route('/menu/addItem/{id}', name: 'add_menu_item')]
     public function addItemToMenu(MenuItemRepository $menuItemRepository, Menu $menu, Request $request, EntityManagerInterface $entityManager): Response
     {
-        if (!$this->getUser() || $this->getUser()->getId() !== $menu->getRestaurant()->getOfUser()->getId()) {
+        $user = $this->getUser();
+        if (!$user || $user->getId() !== $menu->getRestaurant()->getOfUser()->getId()) {
             return $this->redirectToRoute('app_login');
         }
 
-        $restaurant = $menu->getRestaurant();
+        // Récupérer tous les MenuItem
+        $menuItems =$menuItemRepository->findAll();
 
-        $menuItems = $entityManager->getRepository(MenuItem::class)->createQueryBuilder('mi')
-            ->join('mi.category', 'c')
-            ->where('c.restaurant = :restaurant')
-            ->andWhere(':menu NOT MEMBER OF mi.menus')
-            ->setParameter('restaurant', $restaurant)
-            ->setParameter('menu', $menu)
-            ->getQuery()
-            ->getResult();
-
+        // Préparer les choix pour le formulaire
         $choices = [];
         foreach ($menuItems as $item) {
             $choices[$item->getName()] = $item->getId();
         }
-        $categories = $menu->getCategories();
-        $form = $this->createForm(AddItemToMenuType::class, null, ['choices' => $choices]);
 
+        $form = $this->createForm(AddItemToMenuType::class, null, ['choices' => $choices]);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
+
             $selectedItemIds = $form->get('menuItems')->getData();
 
             foreach ($selectedItemIds as $itemId) {
-                $item = $entityManager->getRepository(MenuItem::class)->find($itemId);
+                $item = $menuItemRepository->find($itemId);
                 if ($item) {
                     $menu->addMenuItem($item);
                 }
@@ -225,15 +220,13 @@ final class RestaurantController extends AbstractController
             return $this->redirectToRoute('restaurant', ['id' => $menu->getRestaurant()->getId()]);
         }
 
-
         return $this->render('restaurant/addItemToMenu.html.twig', [
             'form' => $form,
-'menu' => $menu,
-            'categories' => $categories,
-            ]);
-
-
+            'menu' => $menu,
+            'categories' => $menu->getCategories(),
+        ]);
     }
+
     #[Route('/qr-code/{id}/{type}', name: 'app_qr_code')]
     public function qrCode(
         Restaurant       $restaurant,
