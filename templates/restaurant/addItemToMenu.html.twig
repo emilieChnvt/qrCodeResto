@@ -5,48 +5,57 @@
 {% block body %}
     <div class="min-h-screen bg-amber-50 py-12 px-6 flex items-center justify-center">
         <div class="w-full max-w-4xl bg-white p-10 rounded-xl shadow-lg border border-amber-300">
-            <h1 class="text-3xl font-bold text-amber-700 mb-8">Ajouter des plats au menu <span class="text-amber-900">"{{ menu.name }}"</span></h1>
+            <h1 class="text-3xl font-bold text-amber-700 mb-8 text-center">
+                Ajouter des plats au menu <span class="text-amber-900">"{{ menu.name }}"</span>
+            </h1>
 
             {{ form_start(form) }}
 
-            <div class="max-h-96 overflow-y-auto border border-amber-200 rounded-md p-4 bg-amber-50 space-y-6">
-                <div class="max-h-96 overflow-y-auto border border-amber-200 rounded-md p-4 bg-amber-50 space-y-6">
-                    {% for category in menu.categories %}
+            <div class="max-h-96 overflow-y-auto border border-amber-200 rounded-md p-6 bg-amber-50 space-y-10">
+                <div class="max-h-96 overflow-y-auto border border-amber-200 rounded-md p-6 bg-amber-50 space-y-10">
+                    {% for category in categories %}
                         <div>
-                            <h2>{{ category.name }}</h2>
-                            {% for item in category.menuItems %}
-                                {% set isChecked = false %}
-                                {% for choice in form.menuItems %}
-                                    {% if choice.vars.value == item.id and choice.vars.checked %}
-                                        {% set isChecked = true %}
-                                    {% endif %}
-                                {% endfor %}
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        name="{{ form.menuItems.vars.full_name }}[]"
-                                        value="{{ item.id }}"
-                                        {% if isChecked %} checked {% endif %}
-                                    >
-                                    {{ item.name }}
-                                </label>
-                            {% else %}
-                                <p>Aucun plat dans cette catégorie.</p>
-                            {% endfor %}
+                            <h2 class="text-xl font-semibold text-amber-800 mb-4">{{ category.name }}</h2>
+                            <div class="flex flex-wrap gap-6">
+                                {% if category.menuItems|length > 0 %}
+                                    {% for item in category.menuItems %}
+                                        {# Trouver le choix correspondant dans form.menuItems.vars.choices #}
+                                        {% set choice = null %}
+                                        {% for c in form.menuItems.vars.choices %}
+                                            {% if c.value == item.id %}
+                                                {% set choice = c %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if choice %}
+                                            <label class="flex items-center space-x-3 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    name="{{ form.menuItems.vars.full_name }}[]"
+                                                    value="{{ choice.value }}"
+                                                    class="h-5 w-5 text-amber-600 rounded focus:ring-amber-500"
+                                                    {% if choice.data in form.menuItems.vars.value %}checked{% endif %}
+                                                >
+                                                <span class="select-none text-gray-800">{{ choice.label }}</span>
+                                            </label>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="italic text-gray-400">Aucun plat dans cette catégorie.</p>
+                                {% endif %}
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
 
-
-
             </div>
 
-            <button type="submit" class="mt-6 w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-md font-semibold">
+            <button type="submit"
+                    class="mt-8 w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-md font-semibold shadow-md transition duration-300">
                 Valider
             </button>
 
-            {{ form_end(form) }}
-
+            {{ form_rest(form) }} {# ça va afficher tous les champs restants sauf menuItems, que tu as déjà affiché #}
+            {{ form_end(form, {'render_rest': false}) }} {# termine proprement la balise </form> sans réafficher les champs #}
         </div>
     </div>
 {% endblock %}
