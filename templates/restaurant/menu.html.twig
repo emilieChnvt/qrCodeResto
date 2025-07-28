@@ -29,9 +29,39 @@
                             </li>
                         {% endfor %}
                     </ul>
+
                 </section>
             {% endif %}
         {% endfor %}
+        {% if menus|length > 0 %}
+            <section class="mb-14">
+                <h2 class="text-3xl font-semibold border-b-4 border-amber-400 pb-3 mb-8 text-amber-800 tracking-wide">Nos Menus</h2>
+                <ul class="flex flex-wrap gap-2">
+                    {% for menu in menus %}
+                        <li class="w-[calc(33.333%-0.5rem)] h-[22rem]">
+                            <div class="border border-amber-300 rounded shadow-sm bg-white p-4 flex flex-col justify-between h-full">
+                                <div>
+                                    <h3 class="text-2xl font-medium text-amber-900">{{ menu.name }}</h3>
+                                    <span class="text-xl font-semibold text-amber-700">{{ menu.price|number_format(2, '.', ',') }} €</span>
+                                </div>
+                                {% for categorie in menu.categories %}
+                                    <div class="mt-4">
+                                        <h4 class="font-semibold text-amber-800">{{ categorie.name }} :</h4>
+                                        <p class="text-amber-700">
+                                            {% for item in categorie.menuItems %}
+                                                {{ item.name }}{% if not loop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+            </section>
+        {% endif %}
+
 
         <footer class="mt-20 text-center text-amber-600 text-sm italic">
             <p>Merci de votre visite chez <strong class="font-semibold">{{ restaurant.name }}</strong> !</p>

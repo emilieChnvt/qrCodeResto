@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Restaurant;
 use App\Entity\User;
 use App\Repository\RestaurantRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AdminController extends AbstractController
 {
     #[Route('/admin/{id}', name: 'app_admin')]
-    public function index(User $user, RestaurantRepository $restaurantRepository): Response
+    public function index(User $user, RestaurantRepository $restaurantRepository, Restaurant $restaurant): Response
     {
         if (!$this->getUser() || $this->getUser()->getId() !== $user->getId()) {
             return $this->redirectToRoute('app_login');
@@ -19,6 +20,7 @@ final class AdminController extends AbstractController
 
         return $this->render('admin/index.html.twig', [
             'restaurants' => $restaurantRepository->findAll(),
+            'restaurant' => $restaurant,
         ]);
     }
 }

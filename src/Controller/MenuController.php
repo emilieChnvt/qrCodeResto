@@ -19,13 +19,16 @@ use Symfony\Component\Routing\Attribute\Route;
 final class MenuController extends AbstractController
 {
     #[Route('/carte/{id}', name: 'app_show_menu')]
-    public function publicMenuHTML(Restaurant $restaurant, MenuCategoryRepository $menuCategoryRepository): Response
+    public function publicMenuHTML(Restaurant $restaurant, MenuCategoryRepository $menuCategoryRepository, MenuRepository $menuRepository): Response
     {
         $categories = $menuCategoryRepository->findByRestaurant($restaurant);
+
+        $menus = $menuRepository->findBy(['restaurant' => $restaurant]);
 
         return $this->render('restaurant/menu.html.twig', [
             'restaurant' => $restaurant,
             'categories' => $categories,
+            'menus' => $menus
         ]);
     }
 

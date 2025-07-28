@@ -1,15 +1,26 @@
+{% extends 'base.html.twig' %}
 
-    {% extends 'base.html.twig' %}
+{% block title %}Créer un restaurant{% endblock %}
 
-    {% block title %}Créer un restaurant{% endblock %}
+{% block body %}
+    <div class="min-h-screen bg-amber-50 flex items-center justify-center py-12 px-6">
+        <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg border border-amber-300">
+            <h1 class="text-3xl font-bold text-amber-900 mb-6 text-center">Créer un restaurant</h1>
 
-    {% block body %}
-        <h1>Créer un restaurant</h1>
+            {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
 
-        {{ form_start(form) }}
-        {{ form_widget(form) }}
-        <button type="submit" class="btn btn-primary">Créer</button>
-        {{ form_end(form) }}
-    {% endblock %}
+            {{ form_widget(form, {
+                'attr': {
+                    'class': 'w-full px-4 py-3 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-300'
+                }
+            }) }}
 
+            <button type="submit"
+                    class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 rounded-md shadow-lg transition duration-300 ease-in-out">
+                Créer
+            </button>
 
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
