@@ -114,17 +114,40 @@
                     <h2 class="text-xl font-bold text-gray-800 mb-4">Menus créés</h2>
                     <div class="space-y-6">
                         {% for menu in menus %}
-
                             <div class="bg-white border border-green-300 rounded-lg p-5 shadow-sm">
-                                <h3 class="text-lg font-semibold text-green-700 mb-2">📋 {{ menu.name }}</h3>
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="text-lg font-semibold text-green-700">📋 {{ menu.name }}</h3>
+
+                                    <div class="flex items-center gap-4">
+                                        <p class="text-red-600 font-semibold text-lg">
+                                            {{ menu.price|number_format(2, '.', ' ') }} €
+                                        </p>
+                                        <a href="{{ path('app_delete_menu', {id: menu.id}) }}"
+                                           class="text-red-500 text-sm hover:underline transition"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce menu ?')">
+                                            Supprimer
+                                        </a>
+                                        <a href="{{ path('app_edit_menu',{id:menu.id}) }}"  class="text-red-500 text-sm hover:underline transition">Modifier</a>
+                                    </div>
+                                </div>
+
                                 {% if menu.categories is empty %}
                                     <p class="text-gray-400 italic">Aucune catégorie liée.</p>
                                 {% else %}
                                     <ul class="space-y-1 list-disc list-inside">
                                         {% for category in menu.categories %}
+                                            {# Filtrer explicitement les plats liés au menu #}
+                                            {% set itemsInMenu = [] %}
+                                            {% for item in category.menuItems %}
+                                                {% for m in item.menus %}
+                                                    {% if m.id == menu.id %}
+                                                        {% set itemsInMenu = itemsInMenu|merge([item]) %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endfor %}
+
                                             <li>
                                                 <strong>{{ category.name }}</strong> :
-                                                {% set itemsInMenu = category.menuItems|filter(item => item.menus|filter(m => m.id == menu.id)|length > 0) %}
                                                 {% if itemsInMenu is empty %}
                                                     <span class="text-gray-400 italic">aucun plat</span>
                                                 {% else %}
@@ -132,7 +155,6 @@
                                                 {% endif %}
                                             </li>
                                         {% endfor %}
-
                                     </ul>
                                 {% endif %}
                             </div>
@@ -140,6 +162,7 @@
                     </div>
                 </div>
             {% endif %}
+
         </main>
     </div>
 

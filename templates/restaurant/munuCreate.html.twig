@@ -7,11 +7,22 @@
         <div class="w-full max-w-3xl bg-white p-10 rounded-lg shadow-lg border border-amber-300">
             <h1 class="text-3xl font-bold text-amber-900 mb-8 text-center">Créer un nouveau menu pour <span class="underline decoration-amber-600">{{ restaurant.name }}</span></h1>
 
+            {% for label, messages in app.flashes %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                        <div class="text-red-600 bg-red-100 border border-red-400 rounded px-4 py-2 mb-2">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
             {{ form_start(form, {
                 'method': 'POST',
                 'action': path('menu_create_restaurant', {'id': restaurant.id}),
                 'attr': {'class': 'space-y-8'}
             }) }}
+
 
             <div>
                 {{ form_label(form.name, null, {'label_attr': {'class': 'block text-lg font-semibold text-gray-900 mb-2'}}) }}
@@ -32,6 +43,19 @@
                 </div>
                 <div class="text-red-600 text-sm mt-1">
                     {{ form_errors(form.categories) }}
+
+                </div>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Ajouter un prix</h2>
+                <div class="flex flex-wrap gap-5 border border-amber-200 rounded-md p-5 bg-amber-50 max-h-64 overflow-y-auto">
+                    {{ form_widget(form.price, {
+                        'attr': {'class': 'flex flex-wrap gap-5'}
+                    }) }}
+                </div>
+                <div class="text-red-600 text-sm mt-1">
+                    {{ form_errors(form.price) }}
+
                 </div>
             </div>
 

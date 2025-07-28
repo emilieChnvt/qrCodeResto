@@ -34,6 +34,9 @@ class Menu
     #[ORM\ManyToMany(targetEntity: MenuItem::class, inversedBy: 'menus')]
     private Collection $menuItems;
 
+    #[ORM\Column]
+    private ?float $price = null;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -131,6 +134,18 @@ class Menu
     public function removeMenuItem(MenuItem $menuItem): static
     {
         $this->menuItems->removeElement($menuItem);
+
+        return $this;
+    }
+
+    public function getPrice(): ?float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(float $price): static
+    {
+        $this->price = $price;
 
         return $this;
     }
