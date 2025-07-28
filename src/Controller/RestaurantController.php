@@ -2,25 +2,16 @@
 
 namespace App\Controller;
 
-use App\Entity\Menu;
 use App\Entity\MenuCategory;
-use App\Entity\MenuItem;
 use App\Entity\Restaurant;
 use App\Entity\User;
-use App\Form\AddItemToMenuType;
-use App\Form\MenuItemType;
-use App\Form\MenuType;
-use App\Form\RestarantMenuUploadType;
 use App\Form\RestaurantType;
 use App\Repository\MenuCategoryRepository;
-use App\Repository\MenuItemRepository;
 use App\Repository\MenuRepository;
 use App\Repository\RestaurantRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Endroid\QrCode\Builder\BuilderInterface;
-use Knp\Snappy\Pdf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,7 +55,7 @@ final class RestaurantController extends AbstractController
             $entityManager->persist($restaurant);
             $entityManager->flush();
 
-            $categoryNames = ['Boissons', 'Boissons chaudes', 'Cocktails', 'Entrées', 'Plats', 'Menus', 'Desserts', 'Digestifs'];
+            $categoryNames = ['Boissons', 'Boissons chaudes', 'Cocktails', 'Entrées', 'Plats', 'Desserts', 'Digestifs'];
 
             foreach ($categoryNames as $name) {
                 $category = new MenuCategory();
@@ -78,7 +69,7 @@ final class RestaurantController extends AbstractController
         }
 
         return $this->render('restaurant/create.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'categories' => $categoryRepository->findAll(),
         ]);
     }

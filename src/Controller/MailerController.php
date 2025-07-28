@@ -23,7 +23,7 @@ final class MailerController extends AbstractController
                 'from'    => 'Emilie <postmaster@mg.emiliechanavat.com>',
                 'to'      => 'emilie.chnvt@gmail.com',
                 'subject' => 'Test Mailgun',
-                'text'    => 'Ceci est un test.'
+                'text'    => 'Ceci est un test.php.'
             ]
         );
 

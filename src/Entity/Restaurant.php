@@ -19,11 +19,11 @@ class Restaurant
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: false)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $slug = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $url = null;
 
     #[ORM\ManyToOne(inversedBy: 'restaurants')]
     private ?User $ofUser = null;
@@ -72,14 +72,14 @@ class Restaurant
         return $this;
     }
 
-    public function getSlug(): ?string
+    public function getUrl(): ?string
     {
-        return $this->slug;
+        return $this->url;
     }
 
-    public function setSlug(string $slug): static
+    public function setUrl(string $url): static
     {
-        $this->slug = $slug;
+        $this->url = $url;
 
         return $this;
     }
