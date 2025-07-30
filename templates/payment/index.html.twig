@@ -1,33 +1,42 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Subscribe to a cool new product{% endblock %}
+{% block title %}Offre Pro{% endblock %}
 
 {% block body %}
-    <section>
-      <div class="product">
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="14px" height="16px" viewBox="0 0 14 16" version="1.1">
-            <defs/>
-            <g id="Flow" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="0-Default" transform="translate(-121.000000, -40.000000)" fill="#E184DF">
-                    <path d="M127,50 L126,50 C123.238576,50 121,47.7614237 121,45 C121,42.2385763 123.238576,40 126,40 L135,40 L135,56 L133,56 L133,42 L129,42 L129,56 L127,56 L127,50 Z M127,48 L127,42 L126,42 C124.343146,42 123,43.3431458 123,45 C123,46.6568542 124.343146,48 126,48 L127,48 Z" id="Pilcrow"/>
-                </g>
-            </g>
-        </svg>
-        <div class="description">
-          <h3>Starter Plan</h3>
-          <h5>$20.00 / month</h5>
-        </div>
-      </div>
-        <form action="{{ path('create_checkout_session') }}" method="POST">
-            <input type="hidden" name="lookup_key" value="{{ PRICE_LOOKUP_KEY }}" />
-            <button id="checkout-button">Payer</button>
+    <div class="min-h-screen bg-amber-50 flex items-center justify-center px-6 py-20">
 
-        </form>
+        <section class="bg-white border border-amber-200 rounded-lg shadow-md max-w-md w-full p-8 flex flex-col items-center">
 
-    </section>
+            <!-- Titre de l'offre -->
+            <h2 class="text-3xl font-bold text-amber-700 mb-4 text-center">Pro Plan</h2>
+
+            <!-- Prix -->
+            <p class="text-amber-600 text-xl font-semibold mb-6 text-center">10.00 / month</p>
+
+            <!-- Liste des avantages -->
+            <ul class="list-disc list-inside text-gray-700 space-y-3 text-lg mb-8">
+                <li>✔️ Accès complet à la gestion des menus</li>
+                <li>✔️ Upload illimité de fichiers PDF</li>
+                <li>✔️ Création manuelle de catégories et plats</li>
+                <li>✔️ Support prioritaire 24/7</li>
+                <li>✔️ Statistiques avancées en temps réel</li>
+            </ul>
+
+            <!-- Bouton Stripe -->
+            <form action="{{ path('create_checkout_session') }}" method="POST" class="w-full">
+                <input type="hidden" name="lookup_key" value="{{ PRICE_LOOKUP_KEY }}" />
+                <button
+                    id="checkout-button"
+                    type="button"
+                    class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-md font-semibold transition">
+                    Payer
+                </button>
+            </form>
+
+        </section>
+    </div>
+
     <script src="https://js.stripe.com/v3/"></script>
-
-
     <script>
         const stripe = Stripe('{{ stripe_public_key }}');
         const button = document.getElementById('checkout-button');
@@ -56,6 +65,4 @@
                 });
         });
     </script>
-
-
 {% endblock %}

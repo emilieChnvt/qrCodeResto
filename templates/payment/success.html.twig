@@ -1,9 +1,36 @@
 {# templates/payment/success.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Paiement réussi{% endblock %}
+{% block title %}Paiement confirmé{% endblock %}
 
 {% block body %}
-    <h1>Paiement réussi ! 🎉</h1>
-    <p>Merci pour votre achat.</p>
+    <div class="max-w-xl mx-auto mt-16 p-8 bg-gray-50 rounded-lg shadow-md text-center">
+        <h2 class="text-3xl font-semibold text-green-600 mb-4">🎉 Paiement réussi !</h2>
+
+        <p class="text-lg mb-4">
+            Merci pour votre abonnement à <strong>QRMenu</strong> !
+        </p>
+
+        <p class="mb-4">
+            Une confirmation de votre abonnement vient de vous être envoyée par email.
+        </p>
+
+        <p class="mb-6">
+            Vous y trouverez votre <strong>facture en pièce jointe</strong> au format PDF.
+        </p>
+
+        {% if pdf_url %}
+            <p class="mb-6">
+                En cas de besoin, vous pouvez aussi la
+                <a href="{{ pdf_url }}" target="_blank" class="text-blue-600 hover:underline">
+                    télécharger ici
+                </a>.
+            </p>
+        {% endif %}
+
+        <p class="text-gray-500 text-sm">
+            Merci pour votre confiance,<br>
+            <strong>L’équipe QRMenu</strong>
+        </p>
+    </div>
 {% endblock %}

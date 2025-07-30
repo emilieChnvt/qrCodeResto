@@ -2,6 +2,7 @@
 // src/Service/StripeService.php
 namespace App\Service;
 
+use Stripe\Exception\ApiErrorException;
 use Stripe\Stripe;
 use Stripe\Price;
 use Stripe\Checkout\Session as CheckoutSession;
@@ -13,31 +14,44 @@ class StripeService
         Stripe::setApiKey($stripeSecretKey);
     }
 
-    public function createCheckoutSession(string $lookupKey, string $successUrl, string $cancelUrl): CheckoutSession
+    /**
+     * @throws ApiErrorException
+     */
+    public function createCheckoutSession(string $lookupKey, string $successUrl, string $cancelUrl, string $customerId): CheckoutSession
     {
+        $priceMap = [
+            'cle' => 'price_1Rpsu506EEhfyUPZu7D2fhTy',
+        ];
 
-
-        $prices = Price::all([
-            'lookup_keys' => [$lookupKey],
-            'expand' => ['data.product'],
-        ]);
-
-        if (empty($prices->data)) {
-            throw new \Exception("Aucun prix trouvé pour la clé : $lookupKey");
+        $priceId = $priceMap[$lookupKey] ?? null;
+        if (!$priceId) {
+            throw new \Exception("Lookup key non trouvé");
         }
 
-        $priceId = $prices->data[0]->id;
-
-
-        return CheckoutSession::create([
+        return \Stripe\Checkout\Session::create([
+            'mode' => 'subscription',
+            'customer' => $customerId,  // <- ajoute ici
             'line_items' => [[
                 'price' => $priceId,
                 'quantity' => 1,
             ]],
-            'mode' => 'subscription',
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
         ]);
     }
 
+    // src/Service/StripeService.php
+
+    /**
+     * @throws ApiErrorException
+     */
+    public function createCustomer(string $email): \Stripe\Customer
+    {
+        return \Stripe\Customer::create([
+            'email' => $email,
+        ]);
     }
+
+
+
+}

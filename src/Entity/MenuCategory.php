@@ -19,7 +19,7 @@ class MenuCategory
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'menuCategories')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Restaurant $restaurant = null;
 
     /**

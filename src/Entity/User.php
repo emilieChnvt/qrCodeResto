@@ -45,6 +45,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Restaurant::class, mappedBy: 'ofUser')]
     private Collection $restaurants;
 
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $subscriptionPlan = 'free';
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $stripeCustomerId = null;
+
+
+
     public function __construct()
     {
         $this->restaurants = new ArrayCollection();
@@ -172,4 +180,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getSubscriptionPlan(): string
+    {
+        return $this->subscriptionPlan;
+    }
+
+    public function setSubscriptionPlan(string $plan): self
+    {
+        $this->subscriptionPlan = $plan;
+        return $this;
+    }
+
+    public function getStripeCustomerId(): ?string
+    {
+        return $this->stripeCustomerId;
+    }
+
+    public function setStripeCustomerId(?string $stripeCustomerId): static
+    {
+        $this->stripeCustomerId = $stripeCustomerId;
+
+        return $this;
+    }
+
+
 }

@@ -43,9 +43,11 @@ final class RestaurantController extends AbstractController
     #[Route('/create/{id}', name: 'app_create_restaurant')]
     public function create(EntityManagerInterface $entityManager, Request $request, MenuCategoryRepository $categoryRepository, User $user): Response
     {
-        if (!$this->getUser()) {
-            return $this->redirectToRoute('app_login');
+        if (!$this->getUser() || $this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
         }
+
         $restaurant = new Restaurant();
         $form = $this->createForm(RestaurantType::class, $restaurant);
         $form->handleRequest($request);
