@@ -21,6 +21,7 @@ final class MenuController extends AbstractController
     #[Route('/carte/{id}', name: 'app_show_menu')]
     public function publicMenuHTML(Restaurant $restaurant, MenuCategoryRepository $menuCategoryRepository, MenuRepository $menuRepository): Response
     {
+
         $categories = $menuCategoryRepository->findByRestaurant($restaurant);
 
         $menus = $menuRepository->findBy(['restaurant' => $restaurant]);
@@ -38,6 +39,11 @@ final class MenuController extends AbstractController
     {
         if (!$this->getUser() || $this->getUser()->getId() !== $restaurant->getOfUser()->getId()) {
             return $this->redirectToRoute('app_login');
+        }
+
+        if ($this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
         }
 
         $form = $this->createForm(RestarantMenuUploadType::class, $restaurant);
@@ -61,6 +67,11 @@ final class MenuController extends AbstractController
     {
         if (!$this->getUser() || $this->getUser()->getId() !== $restaurant->getOfUser()->getId()) {
             return $this->redirectToRoute('app_login');
+        }
+
+        if ($this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
         }
 
         $categories = $menuCategoryRepository->findByRestaurant($restaurant);
@@ -95,6 +106,12 @@ final class MenuController extends AbstractController
         if (!$this->getUser() || $this->getUser()->getId() !== $menu->getRestaurant()->getOfUser()->getId()) {
             return $this->redirectToRoute('app_login');
         }
+
+        if ($this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
+        }
+
         $entityManager->remove($menu);
         $entityManager->flush();
         return $this->redirectToRoute('restaurant', ['id' => $menu->getRestaurant()->getId()]);
@@ -107,6 +124,10 @@ final class MenuController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
+        if ($this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
+        }
         // Récupérer tous les MenuItem
         $menuItems =$menuItemRepository->findAll();
 
@@ -151,6 +172,10 @@ final class MenuController extends AbstractController
     {
         if (!$this->getUser() || $this->getUser()->getId() !== $menu->getRestaurant()->getOfUser()->getId()) {
             return $this->redirectToRoute('app_login');
+        }
+        if ($this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
         }
 
         $menuItems = $menuItemRepository->findAll();

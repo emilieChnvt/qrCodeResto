@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ProfileController!{% endblock %}
+
+{% block body %}
+    {% if profile.ofUser.subscriptionEndsAt %}
+        <p>Abonnement actif jusqu'au : {{ profile.ofUser.subscriptionEndsAt|date('d/m/Y H:i') }}</p>
+    {% else %}
+        <p>Pas de date de fin d’abonnement enregistrée.</p>
+    {% endif %}
+
+{% endblock %}

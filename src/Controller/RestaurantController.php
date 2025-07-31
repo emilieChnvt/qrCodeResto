@@ -81,6 +81,10 @@ final class RestaurantController extends AbstractController
         if (!$this->getUser() || $this->getUser()->getId() !== $restaurant->getOfUser()->getId()) {
             return $this->redirectToRoute('app_login');
         }
+        if ($this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
+        }
         $entityManager->remove($restaurant);
         $entityManager->flush();
         return $this->redirectToRoute('app_admin', ['id' => $this->getUser()->getId()]);
@@ -91,6 +95,10 @@ final class RestaurantController extends AbstractController
     {
         if (!$this->getUser() || $this->getUser()->getId() !== $restaurant->getOfUser()->getId()) {
             return $this->redirectToRoute('app_login');
+        }
+        if ($this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
         }
         $form = $this->createForm(RestaurantType::class, $restaurant);
         $form->handleRequest($request);
@@ -114,6 +122,10 @@ final class RestaurantController extends AbstractController
         string           $type = 'manual' // valeur par défaut
     ): Response
     {
+        if (!$this->getUser() || $this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
+        }
         $request = $requestStack->getCurrentRequest();
         $baseUrl = $request->getSchemeAndHttpHost();
 
@@ -143,6 +155,12 @@ final class RestaurantController extends AbstractController
     #[Route('/pdf/{id}/{size}', name: 'app_restaurant_pdf')]
     public function pdf(int $id, int $size, RestaurantRepository $restaurantRepository, BuilderInterface $builder, \Knp\Snappy\Pdf $knpSnappyPdf, RequestStack $requestStack): Response
     {
+
+        if (!$this->getUser() || $this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
+        }
+
         $restaurant = $restaurantRepository->find($id);
         if (!$restaurant) {
             throw $this->createNotFoundException('Restaurant non trouvé');

@@ -29,6 +29,10 @@ final class MenuItemController extends AbstractController
         if($this->getUser()->getId() !== $category->getRestaurant()->getOfUser()->getId()){
             return $this->redirectToRoute('restaurant',['id' => $category->getRestaurant()->getId()]);
         }
+        if ($this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
+        }
 
         $menuItem = new MenuItem();
         $form = $this->createForm(MenuItemType::class, $menuItem);
@@ -53,6 +57,12 @@ final class MenuItemController extends AbstractController
         if($this->getUser()->getId() !== $category->getRestaurant()->getOfUser()->getId()){
             return $this->redirectToRoute('restaurant',['id' => $category->getRestaurant()->getId()]);
         }
+
+        if ($this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
+        }
+
 
         $entityManager->remove($menuItem);
         $entityManager->flush();

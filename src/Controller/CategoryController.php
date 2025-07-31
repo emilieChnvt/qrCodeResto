@@ -23,6 +23,11 @@ final class CategoryController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
+        if ($this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
+        }
+
         $category = new MenuCategory();
         $form = $this->createForm(CategoryType::class, $category);
         $form->handleRequest($request);
@@ -45,6 +50,10 @@ final class CategoryController extends AbstractController
     {
         if (!$this->getUser() || $this->getUser()->getId() !== $category->getRestaurant()->getOfUser()->getId()) {
             return $this->redirectToRoute('app_login');
+        }
+        if ($this->getUser()->getSubscriptionPlan() === 'free') {
+            $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
+            return $this->redirectToRoute('payment_index');
         }
         if(!$category){return $this->redirectToRoute('app_admin', ['id' => $category->getRestaurant()->getId()]);}
 
