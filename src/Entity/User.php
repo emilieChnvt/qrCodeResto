@@ -51,6 +51,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $stripeCustomerId = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $subscriptionEndsAt = null;
+
 
 
     public function __construct()
@@ -200,6 +203,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setStripeCustomerId(?string $stripeCustomerId): static
     {
         $this->stripeCustomerId = $stripeCustomerId;
+
+        return $this;
+    }
+
+    public function getSubscriptionEndsAt(): ?\DateTimeImmutable
+    {
+        return $this->subscriptionEndsAt;
+    }
+
+    public function setSubscriptionEndsAt(?\DateTimeImmutable $subscriptionEndsAt): static
+    {
+        $this->subscriptionEndsAt = $subscriptionEndsAt;
 
         return $this;
     }

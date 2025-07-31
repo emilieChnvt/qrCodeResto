@@ -47,7 +47,6 @@ final class RestaurantController extends AbstractController
             $this->addFlash('error', 'Vous devez être abonné pour utiliser cette fonctionnalité.');
             return $this->redirectToRoute('payment_index');
         }
-
         $restaurant = new Restaurant();
         $form = $this->createForm(RestaurantType::class, $restaurant);
         $form->handleRequest($request);

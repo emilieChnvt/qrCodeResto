@@ -19,7 +19,7 @@ final class AdminController extends AbstractController
         }
 
         $restaurant = $restaurantRepository->find($user->getId());
-
+dd($user->getSubscriptionPlan());
         return $this->render('admin/index.html.twig', [
             'restaurants' => $restaurantRepository->findAll(),
             'restaurant' => $restaurant,

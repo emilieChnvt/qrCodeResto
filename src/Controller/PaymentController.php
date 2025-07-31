@@ -7,12 +7,13 @@ use App\Service\StripeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Mailgun\Mailgun;
 use Stripe\Exception\ApiErrorException;
+use Stripe\Stripe;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mime\Email;
+use Stripe\BillingPortal\Session as BillingPortalSession;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -27,11 +28,12 @@ final class PaymentController extends AbstractController
     }
 
     #[Route('/payment', name: 'payment_index')]
-    public function index(): Response
+    public function payment(): Response
     {
         if(!$this->getUser()){
             return $this->redirectToRoute('app_login');
         }
+
         $priceLookupKey = 'cle';
 
         return $this->render('payment/index.html.twig', [
@@ -126,5 +128,31 @@ final class PaymentController extends AbstractController
     public function cancel()
     {
         return $this->render('payment/cancel.html.twig');
+    }
+
+
+    #[Route('/billing-portal', name: 'billing_portal')]
+    public function billingPortal(Request $request, UrlGeneratorInterface $urlGenerator): RedirectResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user || !$user->getStripeCustomerId()) {
+            throw $this->createAccessDeniedException('Utilisateur non connecté ou sans client Stripe');
+        }
+
+        Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
+
+        $session = BillingPortalSession::create([
+            'customer' => $user->getStripeCustomerId(),
+            'return_url' => $urlGenerator->generate('account_index', [], UrlGeneratorInterface::ABSOLUTE_URL), // redirige où tu veux après
+        ]);
+
+        return $this->redirect($session->url);
+    }
+
+    #[Route('/account', name: 'account_index')]
+    public function index(): Response
+    {
+        return $this->render('account/index.html.twig');
     }
 }
