@@ -33,6 +33,21 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    // src/Repository/UserRepository.php
+    public function findUsersWithExpiredSubscription()
+    {
+        $now = new \DateTimeImmutable();
+
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.subscriptionEndsAt <= :now')
+            ->andWhere('u.subscriptionPlan != :free')
+            ->setParameter('now', $now)
+            ->setParameter('free', 'free')
+            ->getQuery()
+            ->getResult();
+    }
+
+
     //    /**
     //     * @return User[] Returns an array of User objects
     //     */

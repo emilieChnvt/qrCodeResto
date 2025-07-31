@@ -54,6 +54,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $subscriptionEndsAt = null;
 
+    #[ORM\OneToOne(mappedBy: 'ofUser', cascade: ['persist', 'remove'])]
+    private ?Profile $profile = null;
+
 
 
     public function __construct()
@@ -218,6 +221,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getProfile(): ?Profile
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(Profile $profile): static
+    {
+        // set the owning side of the relation if necessary
+        if ($profile->getOfUser() !== $this) {
+            $profile->setOfUser($this);
+        }
+
+        $this->profile = $profile;
+
+        return $this;
+    }
+
 
 
 }

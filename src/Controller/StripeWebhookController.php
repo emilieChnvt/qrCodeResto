@@ -109,15 +109,17 @@ class StripeWebhookController extends AbstractController
             $logger->warning("❌ Utilisateur non trouvé pour customerId $stripeCustomerId");
             return;
         }
+        $logger->info('Subscription data: ' . json_encode($subscription));
 
-        // ⏳ Stocke la date de fin d'abonnement (même s’il est encore actif)
-        if (isset($subscription->current_period_end)) {
-            $user->setSubscriptionEndsAt((new \DateTimeImmutable())->setTimestamp($subscription->current_period_end));
-            $logger->info('📅 Date de fin d’abonnement enregistrée : ' . date('Y-m-d H:i:s', $subscription->current_period_end));
+        // ⏳ Stocke la date de fin d'abonnement (priorité à cancel_at si défini)
+        $endsAtTimestamp = $subscription->cancel_at ?? $subscription->current_period_end ?? null;
+        if ($endsAtTimestamp) {
+            $user->setSubscriptionEndsAt((new \DateTimeImmutable())->setTimestamp($endsAtTimestamp));
+            $logger->info('📅 Date de fin d’abonnement enregistrée : ' . date('Y-m-d H:i:s', $endsAtTimestamp));
         }
 
         // Vérifie si l’utilisateur a annulé son abonnement à la fin de la période
-        if ($subscription->cancel_at_period_end) {
+        if (!empty($subscription->cancel_at_period_end)) {
             $logger->info('📅 Abonnement annulé à la fin de la période (access encore actif)');
         }
 
@@ -133,6 +135,7 @@ class StripeWebhookController extends AbstractController
 
         $em->flush();
     }
+
 
     private function handleSubscriptionDeleted($event, $userRepository, $em, $logger)
     {
