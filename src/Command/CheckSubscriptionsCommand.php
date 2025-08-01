@@ -36,6 +36,7 @@ class CheckSubscriptionsCommand extends Command
 
         foreach ($expiredUsers as $user) {
             $user->setSubscriptionPlan('free');
+            $user->setSubscriptionEndsAt(null);
             $output->writeln('Downgraded user '.$user->getEmail().' to free plan.');
         }
 

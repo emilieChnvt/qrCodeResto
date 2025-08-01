@@ -130,6 +130,7 @@ class StripeWebhookController extends AbstractController
             $logger->info('✅ Plan confirmé ou mis à jour à PRO');
         } else {
             $user->setSubscriptionPlan('free');
+            $user->setSubscriptionEndsAt(null);
             $logger->info('ℹ️ Plan confirmé ou mis à jour à FREE');
         }
 
@@ -149,6 +150,9 @@ class StripeWebhookController extends AbstractController
         }
 
         $user->setSubscriptionPlan('free');
+        $user->setSubscriptionEndsAt(null);
+
+
         $em->flush();
         $logger->info('✅ Plan mis à jour à FREE après suppression');
     }
