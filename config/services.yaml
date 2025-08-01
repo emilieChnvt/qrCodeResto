@@ -20,9 +20,19 @@ services:
 
 
     App\Service\MenuFileNamer: ~
+
     App\Service\StripeService:
         arguments:
             $stripeSecretKey: '%env(STRIPE_SECRET_KEY)%'
+
+    App\Service\MailgunService:
+        arguments:
+            $apiKey: '%env(MAILGUN_API_KEY)%'
+            $domain: 'mg.emiliechanavat.com'
+
+    App\Controller\StripeWebhookController:
+        arguments:
+            $stripeWebhookSecret: '%env(STRIPE_WEBHOOK_SECRET)%'
 
 
     menu_file_namer:
