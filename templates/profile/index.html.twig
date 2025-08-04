@@ -43,14 +43,15 @@
 
             <hr class="my-6 w-full">
 
-            {% if profile.ofUser.subscriptionEndsAt %}
+            {% if profile.ofUser.isSubscriptionCanceled %}
                 <p class="text-gray-600 text-sm text-center w-full">
                     <strong class="text-amber-700">Abonnement actif jusqu’au :</strong><br>
                     {{ profile.ofUser.subscriptionEndsAt|date('d/m/Y ') }}
                 </p>
             {% else %}
                 <p class="text-gray-600 text-sm text-center w-full">
-                    Pas de date de fin d’abonnement enregistrée.
+                    <strong class="text-amber-700">Abonnement renouvelé le :</strong><br>
+                    {{ profile.ofUser.subscriptionEndsAt|date('d/m/Y ') }}
                 </p>
             {% endif %}
 

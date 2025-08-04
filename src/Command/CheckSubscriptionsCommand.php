@@ -40,6 +40,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
         foreach ($expiredUsers as $user) {
             $user->setSubscriptionPlan('free');
+            $user->setIsSubscriptionCanceled(null);
             $user->setSubscriptionEndsAt(null);
             $this->em->flush();
 
