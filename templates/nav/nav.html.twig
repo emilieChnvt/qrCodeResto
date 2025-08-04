@@ -4,6 +4,8 @@
     <a href="#" class="py-2 px-4 rounded hover:bg-gray-700 mb-2">Accueil</a>
     <a href="#" class="py-2 px-4 rounded hover:bg-gray-700 mb-2">Menu</a>
     <a href="#" class="py-2 px-4 rounded hover:bg-gray-700 mb-2">Paramètres</a>
-    <a href="#" class="py-2 px-4 rounded hover:bg-gray-700 mb-2">Profil</a>
+    {% if app.user %}
+    <a href="{{ path('app_profile', {id:app.user.profile.id}) }}" class="py-2 px-4 rounded hover:bg-gray-700 mb-2">Profil</a>
+    {% endif %}
     <a href="{{ path('app_logout') }}" class="py-2 px-4 rounded hover:bg-gray-700 mt-auto">Déconnexion</a>
 </nav>

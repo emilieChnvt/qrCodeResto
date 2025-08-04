@@ -1,12 +1,59 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ProfileController!{% endblock %}
+{% block title %}Mon profil{% endblock %}
 
 {% block body %}
-    {% if profile.ofUser.subscriptionEndsAt %}
-        <p>Abonnement actif jusqu'au : {{ profile.ofUser.subscriptionEndsAt|date('d/m/Y H:i') }}</p>
-    {% else %}
-        <p>Pas de date de fin d’abonnement enregistrée.</p>
-    {% endif %}
+    <div class="min-h-screen bg-amber-50 flex justify-center px-6 py-16">
+        <section class="bg-white border border-amber-200 rounded-lg shadow-md w-full max-w-2xl p-8 flex flex-col items-center">
 
+            <h2 class="text-3xl font-bold text-amber-700 mb-6 text-center w-full">Mon profil</h2>
+
+            {% for message in app.flashes('success') %}
+                <div class="mb-4 w-full bg-green-100 border border-green-300 text-green-800 text-sm px-4 py-3 rounded">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="mb-4 w-full bg-red-100 border border-red-300 text-red-800 text-sm px-4 py-3 rounded">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            {{ form_start(form, {'attr': {'class': 'w-full'}}) }}
+
+            <div class="w-full mb-4">
+                {{ form_label(form.email, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                {{ form_widget(form.email, {'attr': {'class': 'w-full border border-gray-300 rounded-md p-3'}}) }}
+                {{ form_errors(form.email) }}
+            </div>
+
+            <div class="w-full mb-6">
+                {{ form_label(form.newPassword, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                {{ form_widget(form.newPassword, {'attr': {'class': 'w-full border border-gray-300 rounded-md p-3'}}) }}
+                {{ form_errors(form.newPassword) }}
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-md font-semibold transition">
+                Enregistrer les modifications
+            </button>
+
+            {{ form_end(form) }}
+
+            <hr class="my-6 w-full">
+
+            {% if profile.ofUser.subscriptionEndsAt %}
+                <p class="text-gray-600 text-sm text-center w-full">
+                    <strong class="text-amber-700">Abonnement actif jusqu’au :</strong><br>
+                    {{ profile.ofUser.subscriptionEndsAt|date('d/m/Y ') }}
+                </p>
+            {% else %}
+                <p class="text-gray-600 text-sm text-center w-full">
+                    Pas de date de fin d’abonnement enregistrée.
+                </p>
+            {% endif %}
+
+        </section>
+    </div>
 {% endblock %}
