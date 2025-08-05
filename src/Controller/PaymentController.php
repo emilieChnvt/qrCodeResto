@@ -34,7 +34,7 @@ final class PaymentController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $priceLookupKey = 'cle';
+        $priceLookupKey = 'key';
 
         return $this->render('payment/index.html.twig', [
             'PRICE_LOOKUP_KEY' => $priceLookupKey,
@@ -62,7 +62,7 @@ final class PaymentController extends AbstractController
             $em->flush();
         }
 
-        $lookupKey = $request->request->get('lookup_key', 'cle');
+        $lookupKey = $request->request->get('lookup_key', 'key');
 
         $successUrl = $urlGenerator->generate('payment_success', [], UrlGeneratorInterface::ABSOLUTE_URL)
             . '?session_id={CHECKOUT_SESSION_ID}';

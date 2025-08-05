@@ -34,6 +34,10 @@ services:
         arguments:
             $stripeWebhookSecret: '%env(STRIPE_WEBHOOK_SECRET)%'
 
+    Stripe\StripeClient:
+        arguments:
+            - '%env(STRIPE_SECRET_KEY)%'
+
 
     menu_file_namer:
         class: App\Service\MenuFileNamer

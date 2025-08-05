@@ -60,6 +60,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?bool $isSubscriptionCanceled = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $stripePaymentMethodId = null;
+
+
+    public function getStripePaymentMethodId(): ?string
+    {
+        return $this->stripePaymentMethodId;
+    }
+
+    public function setStripePaymentMethodId(?string $paymentMethodId): self
+    {
+        $this->stripePaymentMethodId = $paymentMethodId;
+        return $this;
+    }
+
+
 
 
     public function __construct()

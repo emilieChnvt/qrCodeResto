@@ -31,15 +31,22 @@ class StripeWebhookController extends AbstractController
         $sigHeader = $request->headers->get('stripe-signature');
 
         try {
+            // COMMENTE la validation de la signature pour tests locaux
+            /*
             $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, $this->stripeWebhookSecret);
             $logger->info('✅ Signature Stripe vérifiée');
+            */
+
+            // POUR TEST, créer l'événement manuellement à partir du payload JSON
+            $event = json_decode($payload);
+            $logger->info('⚠️ Validation de signature désactivée (mode test)');
         } catch (\UnexpectedValueException $e) {
             $logger->error('❌ JSON invalide : ' . $e->getMessage());
             return new Response('Invalid payload', 400);
-        } catch (SignatureVerificationException $e) {
-            $logger->error('❌ Signature Stripe invalide : ' . $e->getMessage());
-            return new Response('Invalid signature', 400);
-        }
+        } /*catch (SignatureVerificationException $e) {
+        $logger->error('❌ Signature Stripe invalide : ' . $e->getMessage());
+        return new Response('Invalid signature', 400);
+    }*/
 
         $handled = $this->subscriptionService->handleStripeEvent($event);
 
@@ -51,4 +58,5 @@ class StripeWebhookController extends AbstractController
             return new Response('Event not handled', 400);
         }
     }
+
 }

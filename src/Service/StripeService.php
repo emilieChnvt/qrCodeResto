@@ -20,7 +20,7 @@ class StripeService
     public function createCheckoutSession(string $lookupKey, string $successUrl, string $cancelUrl, string $customerId): CheckoutSession
     {
         $priceMap = [
-            'cle' => 'price_1Rpsu506EEhfyUPZu7D2fhTy',
+            'key' => 'price_1Rsmzz06EEhfyUPZbT1xXhdz',
         ];
 
         $priceId = $priceMap[$lookupKey] ?? null;

@@ -1,0 +1,24 @@
+{
+    "id": "evt_test_invoice_payment_succeeded",
+    "object": "event",
+    "type": "invoice.payment_succeeded",
+    "data": {
+        "object": {
+            "id": "in_test_invoice",
+            "object": "invoice",
+            "customer": "cus_SoPbRuIqQHKYZO",
+            "subscription": "sub_1Rsp7D06EEhfyUPZBHZRkiht",
+            "payment_intent": "pm_1RsnyO06EEhfyUPZTtOCwfF9",
+            "lines": {
+                "data": [
+                    {
+                        "period": {
+                            "start": 1690000000,
+                            "end": 1765025298
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -6,6 +6,7 @@ use App\Entity\Profile;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\ProfileRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,4 +47,6 @@ final class ProfileController extends AbstractController
             'form' => $form,
         ]);
     }
+
+
 }
