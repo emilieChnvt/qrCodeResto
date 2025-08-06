@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Service\InvoiceService;
 use App\Service\StripeService;
+use App\Service\SubscriptionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Mailgun\Mailgun;
+use Psr\Log\LoggerInterface;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Stripe;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,11 +23,17 @@ final class PaymentController extends AbstractController
 {
 
     private $stripeService;
+    private $subscriptionService;
 
-    public function __construct(StripeService $stripeService)
+    private LoggerInterface $logger;
+
+
+    public function __construct(StripeService $stripeService, SubscriptionService $subscriptionService, LoggerInterface $logger)
     {
         $this->stripeService = $stripeService;
-    }
+        $this->subscriptionService = $subscriptionService;
+        $this->logger = $logger;    }
+
 
     #[Route('/payment', name: 'payment_index')]
     public function payment(): Response
@@ -47,7 +55,7 @@ final class PaymentController extends AbstractController
      * @throws ApiErrorException
      */
     #[Route('/create-checkout-session', name: 'create_checkout_session', methods: ['POST'])]
-    public function createCheckoutSession(Request $request, UrlGeneratorInterface $urlGenerator, EntityManagerInterface $em): JsonResponse
+    public function createCheckoutSession(Request $request, UrlGeneratorInterface $urlGenerator, EntityManagerInterface $em, LoggerInterface $logger): JsonResponse
     {
         $user = $this->getUser();
 
@@ -60,6 +68,19 @@ final class PaymentController extends AbstractController
             $customer = $this->stripeService->createCustomer($user->getEmail());
             $user->setStripeCustomerId($customer->id);
             $em->flush();
+        }
+
+
+        $subscriptions = $this->subscriptionService->getSubscriptionsForCustomer($user->getStripeCustomerId());
+
+        foreach ($subscriptions as $subscription) {
+            if ($subscription->status === 'active' || $subscription->status === 'trialing') {
+                $logger->info('Subscription status: ' . $subscription->status);
+
+                $this->addFlash('error', 'Vous avez déjà un abonnement actif.');
+                return new JsonResponse(['error' => 'Vous avez déjà un abonnement actif.'], 400);
+            }
+
         }
 
         $lookupKey = $request->request->get('lookup_key', 'key');
@@ -76,6 +97,9 @@ final class PaymentController extends AbstractController
             $cancelUrl,
             $user->getStripeCustomerId()  // <- ici
         );
+
+        $logger->info('Success URL: ' . $successUrl);
+        $logger->info('Cancel URL: ' . $cancelUrl);
 
 
         return new JsonResponse(['id' => $checkoutSession->id]);
@@ -146,6 +170,7 @@ final class PaymentController extends AbstractController
             'customer' => $user->getStripeCustomerId(),
             'return_url' => $urlGenerator->generate('account_index', [], UrlGeneratorInterface::ABSOLUTE_URL), // redirige où tu veux après
         ]);
+
 
         return $this->redirect($session->url);
     }

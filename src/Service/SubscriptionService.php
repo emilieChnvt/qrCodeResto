@@ -25,6 +25,8 @@ class SubscriptionService
 
     public function handleStripeEvent($event): bool
     {
+        $this->logger->info("Type d'événement Stripe reçu : " . $event->type);
+
         return match ($event->type) {
             'customer.subscription.created' => $this->handleCreated($event),
             'customer.subscription.updated' => $this->handleUpdated($event),
@@ -53,7 +55,6 @@ class SubscriptionService
         $user->setSubscriptionPlan('pro');
         $user->setIsSubscriptionCanceled(false);
 
-        $this->logger->info("📦 Plan d'abonnement mis à jour à : $plan");
 
         $currentPeriodEnd = $subscription->current_period_end ?? null;
         $this->logger->info('⏳ current_period_end reçu : ' . var_export($currentPeriodEnd, true));
@@ -101,12 +102,7 @@ class SubscriptionService
         $this->logger->info("✅ Utilisateur trouvé : id " . $user->getId());
 
         $cancelAtPeriodEnd = $subscription->cancel_at_period_end ?? false;
-
-        if ($cancelAtPeriodEnd) {
-            $user->setIsSubscriptionCanceled(true);
-        } else {
-            $user->setIsSubscriptionCanceled(false);
-        }
+        $user->setIsSubscriptionCanceled($cancelAtPeriodEnd);
 
         $currentPeriodEnd = $subscription->items->data[0]->current_period_end ?? null;
         $endedAt = $subscription->ended_at ?? null;
@@ -124,35 +120,50 @@ class SubscriptionService
         }
 
         if ($endsAt) {
-            $user->setSubscriptionEndsAt($endsAt);
-            $this->logger->info("📅 Date de fin de période mise à jour : " . $endsAt->format('Y-m-d H:i:s'));
+            // ✅ Comparaison pour éviter d’écraser une date plus récente
+            if (
+                !$user->getSubscriptionEndsAt() ||
+                $user->getSubscriptionEndsAt() < $endsAt
+            ) {
+                $user->setSubscriptionEndsAt($endsAt);
+                $this->logger->info("📅 Date de fin de période mise à jour : " . $endsAt->format('Y-m-d H:i:s'));
+            } else {
+                $this->logger->info("ℹ️ La date existante est plus récente ou égale, aucune mise à jour.");
+            }
         } else {
             $this->logger->warning("⚠️ Aucune date de fin trouvée dans l'événement");
         }
 
-
+        // Email uniquement si l'abonnement est annulé
         if ($cancelAtPeriodEnd) {
             $email = $user->getEmail();
-
             $endsAtFormatted = $endsAt ? $endsAt->format('d/m/Y') : 'date inconnue';
 
-            $this->mailgunService->send(
-                $email,
-                'Votre abonnement a été annulé',
-                "Bonjour $email,\n\nVotre abonnement a bien été annulé. Vous aurez toujours accès jusqu’au $endsAtFormatted.\n\nMerci pour votre confiance !"
-            );
-            $this->logger->info("📧 Email envoyé pour l’annulation future à $email");
-        } else {
-            $this->logger->info("🔄 Aucune annulation en cours. Abonnement actif.");
+            try {
+                $this->mailgunService->send(
+                    $email,
+                    'Votre abonnement a été annulé',
+                    "Bonjour $email,\n\nVotre abonnement a bien été annulé. Vous aurez toujours accès jusqu’au $endsAtFormatted.\n\nMerci pour votre confiance !"
+                );
+            } catch (\Mailgun\Exception\HttpClientException $e) {
+                if ($e->getCode() === 429) {
+                    $this->logger->warning("⏳ Limite d'envois Mailgun atteinte, email non envoyé pour $email");
+                } else {
+                    throw $e;
+                }
+            }
+
+            // Réinitialiser le plan à "pro"
+            $user->setSubscriptionPlan('pro');
         }
 
-        $user->setSubscriptionPlan('pro');
-
+        // ✅ Un seul flush global ici
         $this->em->flush();
         $this->logger->info("💾 Base de données mise à jour avec la modification d'abonnement.");
 
         return true;
     }
+
 
 
     private function handleDeleted($event): bool
@@ -178,11 +189,20 @@ class SubscriptionService
         $this->logger->info("💾 Abonnement supprimé, base mise à jour.");
 
         $email = $user->getEmail();
-        $this->mailgunService->send(
-            $email,
-            'Votre abonnement a été annulé',
-            "Bonjour $email,\n\nVotre abonnement a pris fin aujourd’hui. Vous n'avez plus accès à la modification de votre menu QR Code.\n\nMerci pour votre confiance !"
-        );
+        try {
+            $this->mailgunService->send(
+                $email,
+                'Votre abonnement a été annulé',
+                "Bonjour $email,\n\nVotre abonnement a pris fin aujourd’hui..."
+            );
+        } catch (\Mailgun\Exception\HttpClientException $e) {
+            if ($e->getCode() === 429) {
+                $this->logger->warning("Limite d'envois Mailgun atteinte, email non envoyé pour $email");
+            } else {
+                throw $e;
+            }
+        }
+
 
         $this->logger->info("📧 Email final envoyé à $email");
 
@@ -214,7 +234,12 @@ class SubscriptionService
 
         if ($subscriptionId) {
             try {
+                $this->logger->info('⏳ Avant appel Stripe API...');
+
+                // 🔥 C’est ici que tu insères ton appel à Stripe
                 $subscription = $this->stripeClient->subscriptions->retrieve($subscriptionId);
+
+                $this->logger->info('✅ Après appel Stripe API...');
                 $paymentMethodId = $subscription->default_payment_method ?? null;
             } catch (\Exception $e) {
                 $this->logger->error("Erreur lors de la récupération de la subscription Stripe: " . $e->getMessage());
@@ -259,19 +284,29 @@ class SubscriptionService
         $this->logger->info("➡️ Payment Method ID : " . $paymentMethodId);
         $this->logger->info("➡️ Période de fin : " . $endsAt->format('Y-m-d H:i:s'));
 
-        if ($paymentMethodId) {
-            $this->syncPaymentMethodFromSubscriptionAndInvoice($subscriptionId, $invoice, $user);
+        if ($paymentMethodId && isset($subscription)) {
+            $this->syncPaymentMethodFromSubscriptionAndInvoice($subscription, $invoice, $user);
         }
+
 
         $this->em->persist($user);
         $this->em->flush();
 
         $email = $user->getEmail();
-        $this->mailgunService->send(
-            $email,
-            'Renouvellement d’abonnement réussi',
-            "Bonjour,\n\nVotre abonnement a été renouvelé avec succès. Vous bénéficiez d’un accès jusqu’au " . $endsAt->format('d/m/Y') . ".\n\nMerci pour votre confiance !"
-        );
+        try {
+            $this->mailgunService->send(
+                $email,
+                'Renouvellement d’abonnement réussi',
+                "Bonjour,\n\nVotre abonnement a été renouvelé avec succès. Vous bénéficiez d’un accès jusqu’au " . $endsAt->format('d/m/Y') . ".\n\nMerci pour votre confiance !"
+            );
+        } catch (\Mailgun\Exception\HttpClientException $e) {
+            if ($e->getCode() === 429) {
+                $this->logger->warning("Limite d'envois Mailgun atteinte, email non envoyé pour $email");
+            } else {
+                throw $e;
+            }
+        }
+
 
         $this->logger->info("📧 Email de confirmation de renouvellement envoyé à $email");
 
@@ -280,24 +315,45 @@ class SubscriptionService
 
     public function syncPaymentMethodFromSubscriptionAndInvoice($subscription, $invoice, $user): void
     {
-        // Priorité au default_payment_method du customer sur la subscription
+        $this->logger->info("🔄 syncPaymentMethodFromSubscriptionAndInvoice appelée");
+
         $paymentMethodId = $subscription->default_payment_method ?? null;
 
-        // Sinon fallback sur la méthode de paiement de la facture
         if (!$paymentMethodId) {
             if (!empty($invoice->payment_method)) {
                 $paymentMethodId = $invoice->payment_method;
             } elseif (!empty($invoice->payment_intent)) {
-                $paymentIntent = $this->stripeClient->paymentIntents->retrieve($invoice->payment_intent);
-                $paymentMethodId = $paymentIntent->payment_method ?? null;
+                try {
+                    $paymentIntent = $this->stripeClient->paymentIntents->retrieve($invoice->payment_intent);
+                    $paymentMethodId = $paymentIntent->payment_method ?? null;
+                } catch (\Exception $e) {
+                    $this->logger->error("Erreur lors de la récupération du PaymentIntent dans sync: " . $e->getMessage());
+                }
             }
         }
 
         if ($paymentMethodId && $user->getStripePaymentMethodId() !== $paymentMethodId) {
+            $this->logger->info("✅ Mise à jour du stripe_payment_method_id : $paymentMethodId");
             $user->setStripePaymentMethodId($paymentMethodId);
             $this->em->flush();
+        } else {
+            $this->logger->info("ℹ️ Aucun changement de méthode de paiement nécessaire.");
         }
     }
+
+    public function getSubscriptionsForCustomer(string $customerId): array
+    {
+        \Stripe\Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
+
+        $subscriptions = \Stripe\Subscription::all([
+            'customer' => $customerId,
+            'status' => 'all',
+            'limit' => 10, // ou plus si besoin
+        ]);
+
+        return $subscriptions->data;
+    }
+
 
 
 }

@@ -55,8 +55,10 @@ class StripeWebhookController extends AbstractController
             return new Response('Webhook handled', 200);
         } else {
             $logger->warning("Webhook Stripe non pris en charge pour l'événement : " . $event->type);
-            return new Response('Event not handled', 400);
+            // Toujours retourner 200 pour éviter les erreurs côté Stripe
+            return new Response('Event not handled but acknowledged', 200);
         }
+
     }
 
 }
