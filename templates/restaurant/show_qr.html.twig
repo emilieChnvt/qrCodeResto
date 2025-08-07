@@ -6,26 +6,64 @@
     {{ parent() }}
     {{ importmap('pdf') }}
 {% endblock %}
+
 {% block body %}
     <div id="qrApp"
          data-pdf-base-url="{{ path('app_restaurant_pdf', {'id': restaurant.id, 'size': 0}) }}"
-         class="max-w-xl mx-auto py-10 text-center">
+         class="max-w-xl mx-auto py-12 px-6 bg-white shadow-md rounded-lg mt-10 text-center">
 
-        <input type="range" id="sizeRange" min="100" max="800" value="250" />
+        <h1 class="text-2xl font-semibold text-gray-800 mb-6">
+            📲 QR Code du menu - {{ restaurant.name }}
+        </h1>
 
+        <!-- Slider -->
+        <div class="mb-6">
+            <label for="sizeRange" class="block text-gray-700 font-medium mb-2">
+                📏 Taille du QR Code : <span id="sizeLabel" class="font-bold">250px</span>
+            </label>
+            <input type="range"
+                   id="sizeRange"
+                   min="100"
+                   max="800"
+                   value="250"
+                   class="w-full accent-amber-600" />
+        </div>
+
+        <!-- QR Code container -->
+        <div id="qrContainer"
+             class="mx-auto my-6 border border-amber-300 rounded-lg p-4 bg-amber-50 flex items-center justify-center"
+             style="width: 250px; height: 250px;">
+            <img src="{{ qrCode }}"
+                 alt="QR Code"
+                 id="qrImage"
+                 class="w-full h-full object-contain" />
+        </div>
+
+        <!-- PDF Download Button -->
         <a id="pdfLink"
            href="{{ path('app_restaurant_pdf', {'id': restaurant.id, 'size': 250}) }}"
-           class="btn btn-primary">
-            Télécharger le PDF
+           class="inline-block bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-6 rounded-md transition duration-200">
+            📥 Télécharger le QrCode
         </a>
-
-        <div id="qrContainer" style="width: 250px; height: 250px;">
-            <img src="{{ qrCode }}" alt="QR Code" style="width: 100%; height: 100%;" />
-        </div>
     </div>
 
     <script>
-        window.pdfBaseUrl = "{{ path('app_restaurant_pdf', {'id': restaurant.id, 'size': 0}) }}";
-    </script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const range = document.getElementById('sizeRange');
+            const sizeLabel = document.getElementById('sizeLabel');
+            const container = document.getElementById('qrContainer');
+            const pdfLink = document.getElementById('pdfLink');
 
- {% endblock %}
+            range.addEventListener('input', () => {
+                const size = range.value;
+                sizeLabel.textContent = size + 'px';
+                container.style.width = size + 'px';
+                container.style.height = size + 'px';
+
+                // Update PDF download link
+                const baseUrl = document.getElementById('qrApp').dataset.pdfBaseUrl;
+                pdfLink.href = baseUrl.replace(/size=\d+/, 'size=' + size);
+            });
+        });
+    </script>
+{% endblock %}

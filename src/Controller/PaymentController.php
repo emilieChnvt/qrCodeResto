@@ -45,6 +45,7 @@ final class PaymentController extends AbstractController
         $priceLookupKey = 'key';
 
         return $this->render('payment/index.html.twig', [
+            'hasSubscription' => $this->getUser()?->isCurrentlySubscribed() ?? false,
             'PRICE_LOOKUP_KEY' => $priceLookupKey,
             'stripe_public_key' => $_ENV['STRIPE_PUBLIC_KEY'], // ou depuis config/services.yaml
         ]);

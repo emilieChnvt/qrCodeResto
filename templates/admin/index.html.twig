@@ -8,7 +8,7 @@
 
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-semibold text-gray-800">📋 Mes Restaurants</h2>
-            <a href="{{ path('app_create_restaurant',{id:app.user.id}) }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition">
+            <a href="{{ path('app_create_restaurant',{id:app.user.id}) }}" class="inline-flex items-center px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded hover:bg-amber-400 transition">
                 + Ajouter un restaurant
             </a>
         </div>
@@ -16,7 +16,7 @@
         {% set userRestaurants = restaurants|filter(r => r.ofUser.id == app.user.id) %}
 
         {% if userRestaurants is empty %}
-            <div class="bg-blue-100 text-blue-800 p-4 rounded">
+            <div class="bg-amber-100  p-4 rounded">
                 Vous n'avez encore aucun restaurant. Cliquez sur le bouton "Ajouter un restaurant" pour commencer.
             </div>
         {% else %}
@@ -24,7 +24,6 @@
                 {% for restaurant in userRestaurants %}
                     <div class="bg-white shadow-md rounded-lg p-5 hover:shadow-xl transition">
                         <h3 class="text-lg font-bold text-gray-900 mb-2">{{ restaurant.name }}</h3>
-                        <p class="text-sm text-gray-500">Créé le {{ restaurant.createAt|date('d/m/Y') }}</p>
 
                         <div class="mt-4 flex justify-between">
                             <a href="{{ path('restaurant',{id:restaurant.id}) }}" class="text-blue-600 hover:underline text-sm">Voir</a>

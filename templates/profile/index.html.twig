@@ -13,6 +13,8 @@
                     {{ message }}
                 </div>
             {% endfor %}
+            {{ dump(app.flashes('error')) }}
+
 
             {% for message in app.flashes('error') %}
                 <div class="mb-4 w-full bg-red-100 border border-red-300 text-red-800 text-sm px-4 py-3 rounded">
@@ -43,18 +45,23 @@
 
             <hr class="my-6 w-full">
 
-            {% if profile.ofUser.isSubscriptionCanceled %}
-                <p class="text-gray-600 text-sm text-center w-full">
-                    <strong class="text-amber-700">Abonnement actif jusqu’au :</strong><br>
-                    {{ profile.ofUser.subscriptionEndsAt|date('d/m/Y ') }}
-                </p>
-            {% else %}
-                <p class="text-gray-600 text-sm text-center w-full">
-                    <strong class="text-amber-700">Abonnement renouvelé le :</strong><br>
-                    {{ profile.ofUser.subscriptionEndsAt|date('d/m/Y ') }}
-                </p>
-            {% endif %}
+            <div>
+                {% if profile.ofUser.isSubscriptionCanceled %}
+                    <p class="text-gray-600 text-sm text-center w-full">
+                        <strong class="text-amber-700">Abonnement actif jusqu’au :</strong><br>
+                        {{ profile.ofUser.subscriptionEndsAt|date('d/m/Y ') }}
+                    </p>
+                {% else %}
+                    <p class="text-gray-600 text-sm text-center w-full">
+                        <strong class="text-amber-700">Abonnement renouvelé le :</strong><br>
+                        {{ profile.ofUser.subscriptionEndsAt|date('d/m/Y ') }}
+                    </p>
+                {% endif %}
 
+            </div>
+            <div class="my-6 h-full">
+                <a href="{{ path('payment_index')  }}" class="text-amber-700 ">Voir mon abonnement</a>
+            </div>
         </section>
     </div>
 {% endblock %}

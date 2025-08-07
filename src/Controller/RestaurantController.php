@@ -133,7 +133,7 @@ final class RestaurantController extends AbstractController
             if (!$restaurant->getMenuFileName()) {
                 throw $this->createNotFoundException('Aucun menu uploadé trouvé.');
             }
-            $url = $baseUrl . '/uploads/menus/' . $restaurant->getMenuFileName();
+            $url = $baseUrl . '/images/files/' . $restaurant->getMenuFileName();
         } else {
             // URL du menu manuel
             $url = $this->generateUrl('app_show_menu', ['id' => $restaurant->getId()], UrlGeneratorInterface::ABSOLUTE_URL);

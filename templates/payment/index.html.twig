@@ -24,7 +24,8 @@
                 <li>✔️ Statistiques avancées en temps réel</li>
             </ul>
 
-            <!-- Bouton Stripe -->
+            {% if not hasSubscription %}
+
             <form action="{{ path('create_checkout_session') }}" method="POST" class="w-full">
                 <input type="hidden" name="lookup_key" value="{{ PRICE_LOOKUP_KEY }}" />
                 <button
@@ -34,7 +35,7 @@
                     Payer
                 </button>
             </form>
-
+            {% endif %}
         </section>
     </div>
 

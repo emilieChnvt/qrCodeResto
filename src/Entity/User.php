@@ -270,6 +270,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function isCurrentlySubscribed(): bool
+    {
+        return $this->getSubscriptionEndsAt() instanceof \DateTimeInterface
+            && $this->getSubscriptionEndsAt() > new \DateTime()
+            && !$this->isSubscriptionCanceled();
+    }
+
+
 
 
 }
