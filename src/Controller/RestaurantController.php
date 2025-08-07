@@ -139,6 +139,7 @@ final class RestaurantController extends AbstractController
             $url = $this->generateUrl('app_show_menu', ['id' => $restaurant->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
+
         $result = $builder->build(data: $url, size: 300, margin: 10);
         $imageData = base64_encode($result->getString());
         $imageSrc = 'data:' . $result->getMimeType() . ';base64,' . $imageData;
