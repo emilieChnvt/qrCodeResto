@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Service\SubscriptionService;
 use Psr\Log\LoggerInterface;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\Webhook;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,34 +32,43 @@ class StripeWebhookController extends AbstractController
         $sigHeader = $request->headers->get('stripe-signature');
 
         try {
-            // COMMENTE la validation de la signature pour tests locaux
-            /*
-            $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, $this->stripeWebhookSecret);
-            $logger->info('✅ Signature Stripe vérifiée');
-            */
+            if ($this->getParameter('kernel.environment') === 'prod') {
+                // ✅ En production : vérification obligatoire de la signature
+                $event = Webhook::constructEvent(
+                    $payload,
+                    $sigHeader,
+                    $this->stripeWebhookSecret
+                );
+                $logger->info('✅ Signature Stripe vérifiée');
+            } else {
+                // ⚠️ En développement : on ignore la signature
+                // ⚠️ En développement : on ignore la signature mais on crée un objet Stripe Event
+                $event = \Stripe\Event::constructFrom(json_decode($payload, true));
+                $logger->info('⚠️ Signature Stripe ignorée en environnement local, objet Event créé');
 
-            // POUR TEST, créer l'événement manuellement à partir du payload JSON
-            $event = json_decode($payload);
-            $logger->info('⚠️ Validation de signature désactivée (mode test)');
+            }
+        } catch (SignatureVerificationException $e) {
+            $logger->error('❌ Signature Stripe invalide : ' . $e->getMessage());
+            return new Response('Invalid signature', 400);
         } catch (\UnexpectedValueException $e) {
             $logger->error('❌ JSON invalide : ' . $e->getMessage());
             return new Response('Invalid payload', 400);
-        } /*catch (SignatureVerificationException $e) {
-        $logger->error('❌ Signature Stripe invalide : ' . $e->getMessage());
-        return new Response('Invalid signature', 400);
-    }*/
+        }
 
+        // 🔄 Transmission de l’event à ton service
         $handled = $this->subscriptionService->handleStripeEvent($event);
 
         if ($handled) {
-            $logger->info("Webhook Stripe traité avec succès pour l'événement : " . $event->type);
+            $logger->info("✅ Webhook Stripe traité avec succès pour l'événement : " . $event->type
+            );
             return new Response('Webhook handled', 200);
-        } else {
-            $logger->warning("Webhook Stripe non pris en charge pour l'événement : " . $event->type);
-            // Toujours retourner 200 pour éviter les erreurs côté Stripe
-            return new Response('Event not handled but acknowledged', 200);
         }
+        $logger->info('Payload reçu : ' . $payload);
+        $logger->info('Type d’événement : ' . $event->type);
 
+        $logger->warning("⚠️ Webhook Stripe non pris en charge pour l'événement : " . $event->type
+        );
+        // Toujours retourner 200 pour que Stripe n’essaie pas de renvoyer l’événement en boucle
+        return new Response('Event not handled but acknowledged', 200);
     }
-
 }

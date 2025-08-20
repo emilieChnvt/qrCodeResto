@@ -293,19 +293,49 @@ class SubscriptionService
         $this->em->flush();
 
         $email = $user->getEmail();
-        try {
-            $this->mailgunService->send(
-                $email,
-                'Renouvellement d’abonnement réussi',
-                "Bonjour,\n\nVotre abonnement a été renouvelé avec succès. Vous bénéficiez d’un accès jusqu’au " . $endsAt->format('d/m/Y') . ".\n\nMerci pour votre confiance !"
-            );
-        } catch (\Mailgun\Exception\HttpClientException $e) {
-            if ($e->getCode() === 429) {
-                $this->logger->warning("Limite d'envois Mailgun atteinte, email non envoyé pour $email");
-            } else {
-                throw $e;
-            }
+        $email = $user->getEmail();
+
+        switch ($invoice->billing_reason) {
+            case 'subscription_create':
+                // ✨ Premier paiement → mail de bienvenue
+                try {
+                    $this->mailgunService->send(
+                        $email,
+                        'Bienvenue ! Votre abonnement est actif 🎉',
+                        "Bonjour,\n\nMerci pour votre inscription ! Votre abonnement est désormais actif jusqu’au " . $endsAt->format('d/m/Y') . ".\n\nBonne utilisation 🚀"
+                    );
+                    $this->logger->info("📧 Email de bienvenue envoyé à $email");
+                } catch (\Mailgun\Exception\HttpClientException $e) {
+                    if ($e->getCode() === 429) {
+                        $this->logger->warning("⏳ Limite Mailgun atteinte, email non envoyé pour $email");
+                    } else {
+                        throw $e;
+                    }
+                }
+                break;
+
+            case 'subscription_cycle':
+                // 🔄 Renouvellement → mail de confirmation
+                try {
+                    $this->mailgunService->send(
+                        $email,
+                        'Renouvellement d’abonnement réussi ✅',
+                        "Bonjour,\n\nVotre abonnement a été renouvelé avec succès. Vous bénéficiez d’un accès jusqu’au " . $endsAt->format('d/m/Y') . ".\n\nMerci pour votre confiance 🙏"
+                    );
+                    $this->logger->info("📧 Email de renouvellement envoyé à $email");
+                } catch (\Mailgun\Exception\HttpClientException $e) {
+                    if ($e->getCode() === 429) {
+                        $this->logger->warning("⏳ Limite Mailgun atteinte, email non envoyé pour $email");
+                    } else {
+                        throw $e;
+                    }
+                }
+                break;
+
+            default:
+                $this->logger->info("ℹ️ Aucun email envoyé pour billing_reason={$invoice->billing_reason}");
         }
+
 
 
         $this->logger->info("📧 Email de confirmation de renouvellement envoyé à $email");
